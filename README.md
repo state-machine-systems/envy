@@ -3,7 +3,7 @@
 ## Super simple configuration for Java.
 
 Envy provides easy, uniform access to environment variables and system properties,
-which helps you build [twelve-factor apps](http://www.12factor.net/config)
+which helps you build [twelve-factor apps](http://www.12factor.net/config).
 
 Say you need to access the environment variables `API_KEY` and `API_SECRET` in your program.
 First, you define an interface with getter methods named after the parameters you want to bring in:
