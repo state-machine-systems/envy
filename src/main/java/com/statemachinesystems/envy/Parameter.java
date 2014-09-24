@@ -1,7 +1,5 @@
 package com.statemachinesystems.envy;
 
-import java.beans.PropertyDescriptor;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Parameter {
@@ -12,20 +10,15 @@ public class Parameter {
     private static final Pattern validNamePattern =
             Pattern.compile(String.format("(%s)(%s%s)*", unicodeAlphaNumeric, separator, unicodeAlphaNumeric));
 
-    // TODO digits? dollars? underscores?
-    private static final Pattern beanNamePattern =
-            Pattern.compile("\\p{javaLowerCase}+"
-                    + "|\\p{javaUpperCase}{2,}\\p{javaLowerCase}*"
-                    + "|\\p{javaUpperCase}\\p{javaLowerCase}+");
+    public static Parameter fromPropertyName(String name) {
+        PropertyNameParser parser = new PropertyNameParser(name);
 
-    public static Parameter fromProperty(PropertyDescriptor prop) {
-        Matcher matcher = beanNamePattern.matcher(prop.getName());
         StringBuilder buf = new StringBuilder();
-        while (matcher.find()) {
+        for (String part : parser.parse()) {
             if (buf.length() > 0) {
-                buf.append('.');
+                buf.append('_');
             }
-            buf.append(matcher.group().toLowerCase());
+            buf.append(part.toUpperCase());
         }
         return new Parameter(buf.toString());
     }
@@ -37,7 +30,7 @@ public class Parameter {
             throw new NullPointerException("Name must not be null");
         }
         if (! validNamePattern.matcher(name).matches()) {
-            throw new IllegalArgumentException("Invalid name format");
+            throw new IllegalArgumentException("Invalid name format: " + name);
         }
         this.name = name;
     }

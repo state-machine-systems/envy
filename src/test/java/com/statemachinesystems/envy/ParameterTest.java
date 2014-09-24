@@ -9,6 +9,46 @@ import static org.junit.Assert.assertThat;
 public class ParameterTest {
 
     @Test
+    public void createsParameterFromSingleWordBeanProperty() {
+        assertThat(Parameter.fromPropertyName("bar"), equalTo(new Parameter("BAR")));
+    }
+
+    @Test
+    public void createsParameterFromMultipleWordBeanProperty() {
+        assertThat(Parameter.fromPropertyName("barBaz"), equalTo(new Parameter("BAR_BAZ")));
+    }
+
+    @Test
+    public void createsParameterFromInitialCapsName() {
+        assertThat(Parameter.fromPropertyName("FooBar"), equalTo(new Parameter("FOO_BAR")));
+    }
+
+    @Test
+    public void createsParameterFromAllCapsName() {
+        assertThat(Parameter.fromPropertyName("FOOBAR"), equalTo(new Parameter("FOOBAR")));
+    }
+
+    @Test
+    public void createsParameterFromBareBeanPropertyPrefix_is() {
+        assertThat(Parameter.fromPropertyName("is"), equalTo(new Parameter("IS")));
+    }
+
+    @Test
+    public void createsParameterFromBareBeanPropertyPrefix_get() {
+        assertThat(Parameter.fromPropertyName("get"), equalTo(new Parameter("GET")));
+    }
+
+    @Test
+    public void createsParameterFromTrickyCapsName() {
+        assertThat(Parameter.fromPropertyName("URLOfTheThing"), equalTo(new Parameter("url.of.the.thing")));
+    }
+
+    @Test
+    public void createsParameterFromTrickyCapsNameWithDigits() {
+        assertThat(Parameter.fromPropertyName("HTTP11Proxy"), equalTo(new Parameter("http11.proxy")));
+    }
+
+    @Test
     public void convertsSingleWordSystemPropertyStyleNameToEnvironmentVariableStyle()  {
         assertThat(new Parameter("foo").asEnvironmentVariableName(), equalTo("FOO"));
     }
