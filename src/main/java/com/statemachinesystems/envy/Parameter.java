@@ -10,6 +10,12 @@ public class Parameter {
     private static final Pattern validNamePattern =
             Pattern.compile(String.format("(%s)(%s%s)*", unicodeAlphaNumeric, separator, unicodeAlphaNumeric));
 
+    public static Parameter fromMethodName(String name) {
+        int prefixLength = getBeanPropertyPrefixLength(name);
+
+        return fromPropertyName(name.substring(prefixLength));
+    }
+
     public static Parameter fromPropertyName(String name) {
         PropertyNameParser parser = new PropertyNameParser(name);
 
@@ -21,6 +27,22 @@ public class Parameter {
             buf.append(part.toUpperCase());
         }
         return new Parameter(buf.toString());
+    }
+
+    private static int getBeanPropertyPrefixLength(String name) {
+        if (hasBeanPropertyPrefix(name, "get")) {
+            return "get".length();
+        } else if (hasBeanPropertyPrefix(name, "is")) {
+            return "is".length();
+        } else {
+            return 0;
+        }
+    }
+
+    private static boolean hasBeanPropertyPrefix(String name, String prefix) {
+        return name.length() > prefix.length()
+                && name.startsWith(prefix)
+                && Character.isUpperCase(name.charAt(prefix.length()));
     }
 
     private final String name;

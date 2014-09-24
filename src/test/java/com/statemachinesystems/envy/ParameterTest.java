@@ -9,22 +9,54 @@ import static org.junit.Assert.assertThat;
 public class ParameterTest {
 
     @Test
-    public void createsParameterFromSingleWordBeanProperty() {
+    public void createsParameterFromBeanPropertyMethodName() {
+        assertThat(Parameter.fromMethodName("getFoo"), equalTo(new Parameter("FOO")));
+    }
+
+    @Test
+    public void createsParameterFromBooleanBeanPropertyMethodName() {
+        assertThat(Parameter.fromMethodName("isBar"), equalTo(new Parameter("BAR")));
+    }
+
+    @Test
+    public void createsParameterFromSingleWordNonBeanPropertyMethodName() {
+        assertThat(Parameter.fromMethodName("fizz"), equalTo(new Parameter("FIZZ")));
+    }
+
+    @Test
+    public void createsParameterFromMultipleWordNonBeanPropertyMethodName() {
+        assertThat(Parameter.fromMethodName("fizzBuzz"), equalTo(new Parameter("FIZZ_BUZZ")));
+    }
+
+    @Test
+    public void createsParameterFromDeceptiveNonBeanPropertyMethodName() {
+        assertThat(Parameter.fromMethodName("gettingTheThing"),
+                equalTo(new Parameter("GETTING_THE_THING")));
+    }
+
+    @Test
+    public void createsParameterFromDeceptiveBooleanNonBeanPropertyMethodName() {
+        assertThat(Parameter.fromMethodName("islandInTheSun"),
+                equalTo(new Parameter("ISLAND_IN_THE_SUN")));
+    }
+
+    @Test
+    public void createsParameterFromSingleWordBeanPropertyName() {
         assertThat(Parameter.fromPropertyName("bar"), equalTo(new Parameter("BAR")));
     }
 
     @Test
-    public void createsParameterFromMultipleWordBeanProperty() {
+    public void createsParameterFromMultipleWordBeanPropertyName() {
         assertThat(Parameter.fromPropertyName("barBaz"), equalTo(new Parameter("BAR_BAZ")));
     }
 
     @Test
-    public void createsParameterFromInitialCapsName() {
+    public void createsParameterFromInitialCapsPropertyName() {
         assertThat(Parameter.fromPropertyName("FooBar"), equalTo(new Parameter("FOO_BAR")));
     }
 
     @Test
-    public void createsParameterFromAllCapsName() {
+    public void createsParameterFromAllCapsPropertyName() {
         assertThat(Parameter.fromPropertyName("FOOBAR"), equalTo(new Parameter("FOOBAR")));
     }
 
@@ -39,12 +71,12 @@ public class ParameterTest {
     }
 
     @Test
-    public void createsParameterFromTrickyCapsName() {
+    public void createsParameterFromTrickyCapsPropertyName() {
         assertThat(Parameter.fromPropertyName("URLOfTheThing"), equalTo(new Parameter("url.of.the.thing")));
     }
 
     @Test
-    public void createsParameterFromTrickyCapsNameWithDigits() {
+    public void createsParameterFromTrickyCapsPropertyNameWithDigits() {
         assertThat(Parameter.fromPropertyName("HTTP11Proxy"), equalTo(new Parameter("http11.proxy")));
     }
 
