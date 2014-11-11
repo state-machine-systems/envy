@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 public class EnumValueParserTest {
 
     private static enum MyEnum {
-        FOO, BAR, BAZ;
+        FOO, BAR, BAZ
     }
 
     private static final EnumValueParser<MyEnum> parser =
