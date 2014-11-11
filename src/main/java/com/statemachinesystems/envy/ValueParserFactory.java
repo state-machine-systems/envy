@@ -4,6 +4,8 @@ import com.statemachinesystems.envy.parsers.ArrayValueParser;
 import com.statemachinesystems.envy.parsers.EnumValueParser;
 import com.statemachinesystems.envy.parsers.ReflectionValueParser;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +34,10 @@ public class ValueParserFactory {
     private final Map<Class<?>, ValueParser<?>> valueParsers;
 
     public ValueParserFactory(ValueParser<?>... valueParsers) {
+        this(Arrays.asList(valueParsers));
+    }
+
+    public ValueParserFactory(Collection<ValueParser<?>> valueParsers) {
         this.valueParsers = new HashMap<Class<?>, ValueParser<?>>();
 
         for (ValueParser<?> parser : valueParsers) {
