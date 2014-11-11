@@ -3,6 +3,7 @@ package com.statemachinesystems.envy.parsers;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class ArrayValueParserTest {
@@ -35,5 +36,11 @@ public class ArrayValueParserTest {
         assertThat(booleanArrayParser.parseValue("true,false,false,true"), is(new Boolean[] {
                 true, false, false, true
         }));
+    }
+
+    @Test
+    public void hasValueClassOfArrayType() {
+        String[] emptyStringArray = new String[] {};
+        assertEquals(emptyStringArray.getClass(), stringArrayParser.getValueClass());
     }
 }

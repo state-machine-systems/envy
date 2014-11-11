@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class EnumValueParserTest {
 
@@ -24,5 +25,10 @@ public class EnumValueParserTest {
     @Test(expected = IllegalArgumentException.class)
     public void rejectsUnknownEnumValues() {
         parser.parseValue("QUX");
+    }
+
+    @Test
+    public void hasValueClassOfSameEnum() {
+        assertEquals(MyEnum.class, parser.getValueClass());
     }
 }
