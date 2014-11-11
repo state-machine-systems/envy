@@ -42,7 +42,7 @@ Instead, you can provide a default value for optional parameters:
 
 ### Vanity naming
 
-Long and/or awkward names can be overriden using the `@Name` annotation:
+Long and/or awkward names can be overridden using the `@Name` annotation:
 
     import com.statemachinesystems.envy.Name;
 
@@ -58,25 +58,26 @@ Long and/or awkward names can be overriden using the `@Name` annotation:
 Envy will do the following type conversions for you:
 
 * Strings (no conversion needed)
-* Numbers (`int`/`Integer`, `long`/`Long`, `byte`/`Byte`, `short`/`Short`, `float`/`Float`, `double`/`Double`, `java.math.BigDecimal`, `java.math.BigInteger`) :x:
-* Booleans (true/false, yes/no, y/n, on/off) :x:
-* Characters (`char`/`Character`) :x:
+* Numbers (`int`/`Integer`, `long`/`Long`, `byte`/`Byte`, `short`/`Short`, `float`/`Float`, `double`/`Double`, `java.math.BigDecimal`, `java.math.BigInteger`)
+* Booleans (true/false, yes/no, y/n, on/off)
+* Characters (`char`/`Character`)
 * Enums :x:
 * Arrays, comma-separated :x:
 * Anything that has a constructor that takes a single `String` argument :x:
 * `java.io.File` :x:
 * `java.lang.Class` :x:
 * `java.net.URL` :x:, `java.net.URI` :x:
+* `java.net.InetAddress` :x:, `Inet4Address`, `Inet6Address`, `InetSocketAddress` :x:
 * `java.util.regex.Pattern` :x:
 * `java.util.UUID` :x:
 
 ### Custom data types
 
-To parse a custom type, extend the `ValueParser` interface:
+To parse a custom type, implement the `ValueParser` interface:
 
     import com.statemachinesystems.envy.ValueParser;
 
-    public class MyCustomTypeParser extends ValueParser<MyCustomType> {
+    public class MyCustomTypeParser implements ValueParser<MyCustomType> {
         @Override
         public MyCustomType parseValue(String value) {
             ...
