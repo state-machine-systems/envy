@@ -62,7 +62,7 @@ Envy will do the following type conversions for you:
 * Booleans (true/false, yes/no, y/n, on/off)
 * Characters (`char`/`Character`)
 * Enums
-* Arrays, comma-separated :x:
+* Arrays, comma-separated
 * `java.io.File` :x:
 * `java.lang.Class` :x:
 * `java.net.URL` :x:, `java.net.URI` :x:
