@@ -61,15 +61,15 @@ Envy will do the following type conversions for you:
 * Numbers (`int`/`Integer`, `long`/`Long`, `byte`/`Byte`, `short`/`Short`, `float`/`Float`, `double`/`Double`, `java.math.BigDecimal`, `java.math.BigInteger`)
 * Booleans (true/false, yes/no, y/n, on/off)
 * Characters (`char`/`Character`)
-* Enums :x:
+* Enums
 * Arrays, comma-separated :x:
-* Anything that has a constructor that takes a single `String` argument :x:
 * `java.io.File` :x:
 * `java.lang.Class` :x:
 * `java.net.URL` :x:, `java.net.URI` :x:
 * `java.net.InetAddress` :x:, `Inet4Address`, `Inet6Address`, `InetSocketAddress` :x:
 * `java.util.regex.Pattern` :x:
 * `java.util.UUID` :x:
+* Anything with a constructor that takes a single `String` argument :x:
 
 ### Custom data types
 
