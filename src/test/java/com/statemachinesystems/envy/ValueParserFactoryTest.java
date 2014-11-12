@@ -77,14 +77,13 @@ public class ValueParserFactoryTest {
     @Test
     public void createsParserForArrayOfRegisteredType() {
         Boolean[] expected = new Boolean[] { Boolean.TRUE, Boolean.FALSE };
-        ValueParser<?> parser = valueParserFactory.getValueParser(expected.getClass());
+        ValueParser<?> parser = valueParserFactory.getValueParser(Boolean[].class);
         assertArrayEquals(expected, (Boolean[]) parser.parseValue("true,false"));
     }
 
     @Test
     public void createsParserForBoxedArrayOfRegisteredType() {
-        boolean[] primitiveArray = new boolean[] {};
-        ValueParser<?> parser = valueParserFactory.getValueParser(primitiveArray.getClass());
+        ValueParser<?> parser = valueParserFactory.getValueParser(boolean[].class);
         Boolean[] expected = new Boolean[] { Boolean.TRUE, Boolean.TRUE };
         assertArrayEquals(expected, (Boolean[]) parser.parseValue("true,true"));
     }
@@ -92,7 +91,7 @@ public class ValueParserFactoryTest {
     @Test
     public void createsParserForArrayOfEnumType() {
         MyEnum[] expected = new MyEnum[] { MyEnum.BAR, MyEnum.BAR, MyEnum.BAZ };
-        ValueParser<?> parser = valueParserFactory.getValueParser(expected.getClass());
+        ValueParser<?> parser = valueParserFactory.getValueParser(MyEnum[].class);
         assertArrayEquals(expected, (MyEnum[]) parser.parseValue("BAR,BAR,BAZ"));
     }
 
@@ -105,13 +104,11 @@ public class ValueParserFactoryTest {
 
     @Test(expected = UnsupportedTypeException.class)
     public void rejectsArrayOfUnsupportedType() {
-        Random[] arrayOfRandom = new Random[] {};
-        valueParserFactory.getValueParser(arrayOfRandom.getClass());
+        valueParserFactory.getValueParser(Random[].class);
     }
 
     @Test(expected = UnsupportedTypeException.class)
     public void rejectsArrayOfArrays() {
-        String[][] arrayOfArrays = new String[][] {};
-        valueParserFactory.getValueParser(arrayOfArrays.getClass());
+        valueParserFactory.getValueParser(String[][].class);
     }
 }

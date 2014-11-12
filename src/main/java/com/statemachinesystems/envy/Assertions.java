@@ -7,14 +7,21 @@ public class Assertions {
     public static void assertInterface(Class<?> c) {
         if (! c.isInterface()) {
             throw new IllegalArgumentException(
-                    String.format("%s is not an interface", c.getName()));
+                    String.format("%s is not an interface", c.getCanonicalName()));
+        }
+    }
+
+    public static void assertArray(Class<?> c) {
+        if (! c.isArray()) {
+            throw new IllegalArgumentException(
+                    String.format("%s is not an array", c.getCanonicalName()));
         }
     }
 
     public static void assertEnum(Class<?> c) {
         if (! c.isEnum()) {
             throw new IllegalArgumentException(
-                    String.format("%s is not an enum", c.getName()));
+                    String.format("%s is not an enum", c.getCanonicalName()));
         }
     }
 
