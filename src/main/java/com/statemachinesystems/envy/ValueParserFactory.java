@@ -9,27 +9,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.statemachinesystems.envy.Conversions.toBoxed;
+
 public class ValueParserFactory {
-
-    private static final Map<Class<?>, Class<?>> primitiveToBoxed = new HashMap<Class<?>, Class<?>>();
-
-    {
-        primitiveToBoxed.put(boolean.class, Boolean.class);
-        primitiveToBoxed.put(byte.class, Byte.class);
-        primitiveToBoxed.put(char.class, Character.class);
-        primitiveToBoxed.put(double.class, Double.class);
-        primitiveToBoxed.put(float.class, Float.class);
-        primitiveToBoxed.put(int.class, Integer.class);
-        primitiveToBoxed.put(long.class, Long.class);
-        primitiveToBoxed.put(short.class, Short.class);
-        primitiveToBoxed.put(void.class, Void.class);
-    }
-
-    private static Class<?> boxed(Class<?> propertyClass) {
-        return propertyClass.isPrimitive()
-                ? primitiveToBoxed.get(propertyClass)
-                : propertyClass;
-    }
 
     private final Map<Class<?>, ValueParser<?>> valueParsers;
 
@@ -50,7 +32,7 @@ public class ValueParserFactory {
     }
 
     private ValueParser<?> getValueParser(Class<?> propertyClass, boolean allowArrays) {
-        ValueParser<?> parser = valueParsers.get(boxed(propertyClass));
+        ValueParser<?> parser = valueParsers.get(toBoxed(propertyClass));
 
         if (parser != null) {
             return parser;

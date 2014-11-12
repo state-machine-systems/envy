@@ -24,4 +24,6 @@ public class Assertions {
                     String.format("%s must not take any parameters", m.getName()));
         }
     }
+
+    private Assertions() {}
 }
