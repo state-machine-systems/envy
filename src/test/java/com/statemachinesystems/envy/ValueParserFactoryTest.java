@@ -1,5 +1,7 @@
 package com.statemachinesystems.envy;
 
+import com.statemachinesystems.envy.example.MyClass;
+import com.statemachinesystems.envy.example.MyEnum;
 import com.statemachinesystems.envy.parsers.BooleanValueParser;
 import org.junit.Test;
 
@@ -9,35 +11,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 
 public class ValueParserFactoryTest {
-
-    public static enum MyEnum {
-        FOO, BAR, BAZ
-    }
-
-    public static class MyClass {
-        private final String value;
-
-        public MyClass(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            MyClass myClass = (MyClass) o;
-
-            if (!value.equals(myClass.value)) return false;
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            return value.hashCode();
-        }
-    }
 
     private final ValueParserFactory valueParserFactory =
             new ValueParserFactory(new BooleanValueParser());

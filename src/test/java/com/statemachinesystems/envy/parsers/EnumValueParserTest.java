@@ -1,5 +1,6 @@
 package com.statemachinesystems.envy.parsers;
 
+import com.statemachinesystems.envy.example.MyEnum;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -7,10 +8,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertEquals;
 
 public class EnumValueParserTest {
-
-    private static enum MyEnum {
-        FOO, BAR, BAZ
-    }
 
     private static final EnumValueParser<MyEnum> parser =
             new EnumValueParser<MyEnum>(MyEnum.class);
