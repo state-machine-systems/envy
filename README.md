@@ -38,8 +38,6 @@ Instead, you can provide a default value for optional parameters:
         int getHttpPort();
     }
 
-:x: Not implemented yet!
-
 ### Vanity naming
 
 Long and/or awkward names can be overridden using the `@Name` annotation:
