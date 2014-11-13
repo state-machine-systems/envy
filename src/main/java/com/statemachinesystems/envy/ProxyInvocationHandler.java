@@ -1,5 +1,6 @@
 package com.statemachinesystems.envy;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -44,12 +45,21 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
         String rawValue = configSource.getValue(parameter);
         if (rawValue == null) {
-            // TODO defaulting
+            rawValue = getDefaultValue(method);
+        }
+        if (rawValue == null) {
             throw new IllegalArgumentException(
                     String.format("Missing configuration value for %s.%s",
                             configClass.getSimpleName(), method.getName()));
         }
         return rawValue;
+    }
+
+    private static String getDefaultValue(Method method) {
+        Default defaultAnnotation = method.getAnnotation(Default.class);
+        return defaultAnnotation != null
+            ? defaultAnnotation.value()
+            : null;
     }
 
     private static ValueParser<?> getValueParser(ValueParserFactory valueParserFactory,

@@ -22,6 +22,9 @@ public class ProxyInvocationHandlerTest {
         int getAPrimitiveInteger();
         Integer[] getAnArrayOfBoxedIntegers();
         int[] getAnArrayOfPrimitiveIntegers();
+
+        @Default("default value")
+        String defaultedString();
     }
 
     private ConfigSource configSource;
@@ -66,6 +69,11 @@ public class ProxyInvocationHandlerTest {
     @Test
     public void retrievesArrayOfPrimitiveIntegers() throws Throwable {
         assertArrayEquals(new int[]{1, 2, 3}, (int[]) invoke("getAnArrayOfPrimitiveIntegers"));
+    }
+
+    @Test
+    public void retrievesDefaultValue() throws Throwable {
+        assertEquals("default value", invoke("defaultedString"));
     }
 
     @Test(expected = IllegalArgumentException.class)
