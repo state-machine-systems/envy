@@ -93,6 +93,5 @@ Then, when instantiating your configuration, pass along an instance of your pars
 
     MyConfig config = Envy.configure(MyConfig.class, new MyCustomTypeParser());
 
-:x: Not implemented yet!
 
 &copy; 2014 State Machine Systems Ltd. [Apache Licence, Version 2.0]( http://www.apache.org/licenses/LICENSE-2.0)

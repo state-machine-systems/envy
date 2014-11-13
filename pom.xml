@@ -59,6 +59,36 @@
                         </goals>
                         <configuration>
                             <argLine>${jacocoAgentConfigArgs}</argLine>
+                            <excludes>
+                                <exclude>**/integration/*.*</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>integration-test</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <argLine>${jacocoAgentConfigArgs}</argLine>
+                            <includes>
+                                <include>**/integration/*.*</include>
+                            </includes>
+                            <environmentVariables>
+                                <NODE_TYPE>mellifluator</NODE_TYPE>
+                                <SPLINE_RETICULATION_COUNT>143</SPLINE_RETICULATION_COUNT>
+                                <DIRIGIBLE_ENABLED>n</DIRIGIBLE_ENABLED>
+                                <DATA_POINTS>-1,-2,-3</DATA_POINTS>
+                                <MORE_DATA_POINTS>a:3,b:91,c:74</MORE_DATA_POINTS>
+                            </environmentVariables>
+                            <systemProperties>
+                                <endpoints>foo17,foo18,foo19</endpoints>
+                                <foo.bars>FOO,BAR</foo.bars>
+                                <dirigible.enabled>y</dirigible.enabled>
+                                <data.points>0,1,2</data.points>
+                                <more.data.points>x:7,y:18,z:41</more.data.points>
+                            </systemProperties>
                         </configuration>
                     </execution>
                 </executions>
