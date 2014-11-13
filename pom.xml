@@ -88,6 +88,7 @@
                                 <dirigible.enabled>y</dirigible.enabled>
                                 <data.points>0,1,2</data.points>
                                 <more.data.points>x:7,y:18,z:41</more.data.points>
+                                <ignores.the.default>foo-bar-63</ignores.the.default>
                             </systemProperties>
                         </configuration>
                     </execution>

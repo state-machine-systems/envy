@@ -1,5 +1,6 @@
 package com.statemachinesystems.envy.integration;
 
+import com.statemachinesystems.envy.Default;
 import com.statemachinesystems.envy.Envy;
 import com.statemachinesystems.envy.example.MyClass;
 import com.statemachinesystems.envy.example.MyCustomClass;
@@ -23,6 +24,11 @@ public class EnvyTest {
         MyClass[] dataPoints();
         MyCustomClass[] moreDataPoints();
 
+        @Default("ignored")
+        MyClass ignoresTheDefault();
+
+        @Default("j:47")
+        MyCustomClass usesTheDefault();
     }
 
     private ExampleConfig config;
@@ -67,5 +73,15 @@ public class EnvyTest {
     public void retrievesMoreDataPointsFromOverridingSystemProperty() {
         assertArrayEquals(new MyCustomClass[] { new MyCustomClass("x", 7), new MyCustomClass("y", 18), new MyCustomClass("z", 41) },
                 config.moreDataPoints());
+    }
+
+    @Test
+    public void ignoresDefaultValueWhenSystemPropertyIsAvailable() {
+        assertEquals(new MyClass("foo-bar-63"), config.ignoresTheDefault());
+    }
+
+    @Test
+    public void usesDefaultValueWhenNoSystemPropertyOrEnvironmentVariableIsAvailable() {
+        assertEquals(new MyCustomClass("j", 47), config.usesTheDefault());
     }
 }
