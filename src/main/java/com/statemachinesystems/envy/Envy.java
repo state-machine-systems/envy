@@ -31,6 +31,7 @@ public class Envy {
         valueParsers.add(new BooleanValueParser());
         valueParsers.add(new ByteValueParser());
         valueParsers.add(new CharacterValueParser());
+        valueParsers.add(new ClassValueParser());
         valueParsers.add(new DoubleValueParser());
         valueParsers.add(new FloatValueParser());
         valueParsers.add(new IntegerValueParser());

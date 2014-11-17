@@ -61,7 +61,7 @@ Envy will do the following type conversions for you:
 * Arrays, comma-separated
 * Anything with a constructor that takes a single `String` argument
 * `java.io.File` :x:
-* `java.lang.Class` :x:
+* `java.lang.Class`
 * `java.net.URL` :x:, `java.net.URI` :x:
 * `java.net.InetAddress` :x:, `Inet4Address`, `Inet6Address`, `InetSocketAddress` :x:
 * `java.util.regex.Pattern` :x:
