@@ -39,6 +39,7 @@ public class Envy {
         valueParsers.add(new LongValueParser());
         valueParsers.add(new ShortValueParser());
         valueParsers.add(new StringValueParser());
+        valueParsers.add(new UuidValueParser());
 
         return Collections.unmodifiableList(valueParsers);
     }

@@ -65,7 +65,7 @@ Envy will do the following type conversions for you:
 * `java.net.URL` :x:, `java.net.URI` :x:
 * `java.net.InetAddress` :x:, `Inet4Address`, `Inet6Address`, `InetSocketAddress` :x:
 * `java.util.regex.Pattern` :x:
-* `java.util.UUID` :x:
+* `java.util.UUID`
 
 ### Custom data types
 
