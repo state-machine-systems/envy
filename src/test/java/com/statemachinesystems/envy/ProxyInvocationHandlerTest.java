@@ -25,6 +25,9 @@ public class ProxyInvocationHandlerTest {
 
         @Default("default value")
         String defaultedString();
+
+        @Name("custom.parameter.name")
+        String stringWithCustomName();
     }
 
     private ConfigSource configSource;
@@ -39,6 +42,7 @@ public class ProxyInvocationHandlerTest {
         params.put(new Parameter("A_PRIMITIVE_INTEGER"), "15");
         params.put(new Parameter("AN_ARRAY_OF_BOXED_INTEGERS"), "7");
         params.put(new Parameter("AN_ARRAY_OF_PRIMITIVE_INTEGERS"), "1,2,3");
+        params.put(new Parameter("CUSTOM_PARAMETER_NAME"), "bar");
         configSource = new DummyConfigSource(params);
 
         valueParserFactory = new ValueParserFactory(new StringValueParser(), new IntegerValueParser());
@@ -74,6 +78,11 @@ public class ProxyInvocationHandlerTest {
     @Test
     public void retrievesDefaultValue() throws Throwable {
         assertEquals("default value", invoke("defaultedString"));
+    }
+
+    @Test
+    public void retrievesValueWithCustomName() throws Throwable {
+        assertEquals("bar", invoke("stringWithCustomName"));
     }
 
     @Test(expected = IllegalArgumentException.class)

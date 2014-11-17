@@ -49,8 +49,6 @@ Long and/or awkward names can be overridden using the `@Name` annotation:
         String getThing();
     }
 
-:x: Not implemented yet!
-
 ### Supported data types
 
 Envy will do the following type conversions for you:

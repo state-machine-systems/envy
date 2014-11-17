@@ -2,6 +2,7 @@ package com.statemachinesystems.envy.integration;
 
 import com.statemachinesystems.envy.Default;
 import com.statemachinesystems.envy.Envy;
+import com.statemachinesystems.envy.Name;
 import com.statemachinesystems.envy.example.MyClass;
 import com.statemachinesystems.envy.example.MyCustomClass;
 import com.statemachinesystems.envy.example.MyCustomClassParser;
@@ -29,6 +30,9 @@ public class EnvyTest {
 
         @Default("j:47")
         MyCustomClass usesTheDefault();
+
+        @Name("com.foo.long.and.awkward.name")
+        String withCustomName();
     }
 
     private ExampleConfig config;
@@ -83,5 +87,10 @@ public class EnvyTest {
     @Test
     public void usesDefaultValueWhenNoSystemPropertyOrEnvironmentVariableIsAvailable() {
         assertEquals(new MyCustomClass("j", 47), config.usesTheDefault());
+    }
+
+    @Test
+    public void usesCustomNameAnnotation() {
+        assertEquals("xyz", config.withCustomName());
     }
 }

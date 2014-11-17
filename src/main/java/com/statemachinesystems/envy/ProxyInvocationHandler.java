@@ -20,8 +20,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
         for (Method method : configClass.getDeclaredMethods()) {
             assertMethodWithNoParameters(method);
 
-            // TODO custom naming
-            Parameter parameter = Parameter.fromMethodName(method.getName());
+            Parameter parameter = getParameter(method);
             String rawValue = getRawValue(configSource, parameter, configClass, method);
             ValueParser<?> valueParser = getValueParser(valueParserFactory, configClass, method);
             Object parsedValue = valueParser.parseValue(rawValue);
@@ -36,6 +35,13 @@ public class ProxyInvocationHandler implements InvocationHandler {
         }
 
         return new ProxyInvocationHandler(values);
+    }
+
+    private static Parameter getParameter(Method method) {
+        Name customParameterName = method.getAnnotation(Name.class);
+        return customParameterName != null
+            ? new Parameter(customParameterName.value())
+            : Parameter.fromMethodName(method.getName());
     }
 
     private static String getRawValue(ConfigSource configSource,
