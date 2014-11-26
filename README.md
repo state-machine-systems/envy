@@ -60,12 +60,12 @@ Envy will do the following type conversions for you:
 * Enums
 * Arrays, comma-separated
 * Anything with a constructor that takes a single `String` argument
-* `java.io.File` :x:
-* `java.lang.Class` :x:
-* `java.net.URL` :x:, `java.net.URI` :x:
-* `java.net.InetAddress` :x:, `Inet4Address`, `Inet6Address`, `InetSocketAddress` :x:
-* `java.util.regex.Pattern` :x:
-* `java.util.UUID` :x:
+* `java.io.File`
+* `java.lang.Class`
+* `java.net.URL`, `java.net.URI`
+* `java.net.InetAddress`, `Inet4Address`, `Inet6Address`, `InetSocketAddress`
+* `java.util.regex.Pattern`
+* `java.util.UUID`
 
 ### Custom data types
 

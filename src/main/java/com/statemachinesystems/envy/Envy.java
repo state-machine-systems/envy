@@ -31,12 +31,22 @@ public class Envy {
         valueParsers.add(new BooleanValueParser());
         valueParsers.add(new ByteValueParser());
         valueParsers.add(new CharacterValueParser());
+        valueParsers.add(new ClassValueParser());
         valueParsers.add(new DoubleValueParser());
+        valueParsers.add(new FileValueParser());
         valueParsers.add(new FloatValueParser());
+        valueParsers.add(new InetAddressValueParser());
+        valueParsers.add(new Inet4AddressValueParser());
+        valueParsers.add(new Inet6AddressValueParser());
+        valueParsers.add(new InetSocketAddressValueParser());
         valueParsers.add(new IntegerValueParser());
         valueParsers.add(new LongValueParser());
+        valueParsers.add(new PatternValueParser());
         valueParsers.add(new ShortValueParser());
         valueParsers.add(new StringValueParser());
+        valueParsers.add(new UuidValueParser());
+        valueParsers.add(new UriValueParser());
+        valueParsers.add(new UrlValueParser());
 
         return Collections.unmodifiableList(valueParsers);
     }
