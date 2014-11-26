@@ -63,7 +63,7 @@ Envy will do the following type conversions for you:
 * `java.io.File`
 * `java.lang.Class`
 * `java.net.URL`, `java.net.URI`
-* `java.net.InetAddress`, `Inet4Address`, `Inet6Address`, `InetSocketAddress` :x:
+* `java.net.InetAddress`, `Inet4Address`, `Inet6Address`, `InetSocketAddress`
 * `java.util.regex.Pattern`
 * `java.util.UUID`
 

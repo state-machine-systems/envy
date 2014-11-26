@@ -38,6 +38,7 @@ public class Envy {
         valueParsers.add(new InetAddressValueParser());
         valueParsers.add(new Inet4AddressValueParser());
         valueParsers.add(new Inet6AddressValueParser());
+        valueParsers.add(new InetSocketAddressValueParser());
         valueParsers.add(new IntegerValueParser());
         valueParsers.add(new LongValueParser());
         valueParsers.add(new PatternValueParser());
