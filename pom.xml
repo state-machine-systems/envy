@@ -9,6 +9,18 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <name>Envy</name>
+    <description>Super simple configuration for Java.</description>
+    <url>https://github.com/state-machine-systems/envy</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <scm>
         <developerConnection>scm:git:git@github.com:state-machine-systems/envy.git</developerConnection>
     </scm>
