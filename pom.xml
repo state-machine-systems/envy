@@ -22,13 +22,18 @@
     </licenses>
 
     <scm>
+        <connection>scm:git:git@github.com:state-machine-systems/envy.git</connection>
         <developerConnection>scm:git:git@github.com:state-machine-systems/envy.git</developerConnection>
+        <url>git@github.com:state-machine-systems/envy.git</url>
     </scm>
 
     <developers>
         <developer>
             <id>johnwright</id>
             <name>John Wright</name>
+            <email>john@statemachinesystems.co.uk</email>
+            <organization>State Machine Systems</organization>
+            <organizationUrl>http://www.statemachinesystems.co.uk</organizationUrl>
         </developer>
     </developers>
 
