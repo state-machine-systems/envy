@@ -38,13 +38,25 @@ Instead, you can provide a default value for optional parameters:
         int getHttpPort();
     }
 
+### Optional values
+
+Sometimes a parameter type has no meaningful default value, or you need to test for its absence. Nulls are still bad,
+but you can have them if you really need them:
+
+    import com.statemachinesystems.envy.Optional;
+
+    interface FooConfig {
+        @Optional
+        URL getOptionalUrl();
+    }
+
 ### Vanity naming
 
 Long and/or awkward names can be overridden using the `@Name` annotation:
 
     import com.statemachinesystems.envy.Name;
 
-    interface FooConfig {
+    interface BarConfig {
         @Name("com.foo.extremely.long.property.name.for.thing")
         String getThing();
     }

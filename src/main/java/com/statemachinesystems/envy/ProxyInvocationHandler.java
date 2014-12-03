@@ -60,7 +60,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
         if (rawValue == null) {
             rawValue = getDefaultValue(method);
         }
-        if (rawValue == null) {
+        if (rawValue == null && isMandatory(method)) {
             throw new IllegalArgumentException(
                     String.format("Missing configuration value for %s.%s",
                             configClass.getSimpleName(), method.getName()));
@@ -73,6 +73,11 @@ public class ProxyInvocationHandler implements InvocationHandler {
         return defaultAnnotation != null
             ? defaultAnnotation.value()
             : null;
+    }
+
+    private static boolean isMandatory(Method method) {
+        return method.getReturnType().isPrimitive()
+            || method.getAnnotation(Optional.class) == null;
     }
 
     private static ValueParser<?> getValueParser(ValueParserFactory valueParserFactory,
