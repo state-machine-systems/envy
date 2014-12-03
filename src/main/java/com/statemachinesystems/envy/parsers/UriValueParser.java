@@ -5,6 +5,9 @@ import com.statemachinesystems.envy.ValueParser;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+/**
+ * {@link ValueParser} implementation for {@link java.net.URI} values.
+ */
 public class UriValueParser implements ValueParser<URI> {
 
     @Override

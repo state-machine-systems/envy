@@ -4,6 +4,11 @@ import com.statemachinesystems.envy.ValueParser;
 
 import java.lang.reflect.Array;
 
+/**
+ * {@link ValueParser} implementation for array values.
+ *
+ * @param <T>  the type of the array element to be parsed
+ */
 public class ArrayValueParser<T> implements ValueParser<T[]> {
 
     public static final String DEFAULT_SEPARATOR = ",";

@@ -9,6 +9,9 @@ import static java.lang.Character.isDigit;
 import static java.lang.Character.isLowerCase;
 import static java.lang.Character.isUpperCase;
 
+/**
+ * Splits a bean property name into component words.
+ */
 public class PropertyNameParser {
 
     private static enum ParserState {

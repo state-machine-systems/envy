@@ -4,6 +4,12 @@ import com.statemachinesystems.envy.ValueParser;
 
 import java.lang.reflect.Constructor;
 
+/**
+ * {@link ValueParser} implementation for anything with a constructor that takes
+ * a single {@link java.lang.String} argument.
+ *
+ * @param <T>  the type to be parsed
+ */
 public class ReflectionValueParser<T> implements ValueParser<T> {
 
     public static <T> ReflectionValueParser<T> parserOrNull(Class<T> valueClass) {

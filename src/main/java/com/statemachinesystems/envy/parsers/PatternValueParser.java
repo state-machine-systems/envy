@@ -4,6 +4,9 @@ import com.statemachinesystems.envy.ValueParser;
 
 import java.util.regex.Pattern;
 
+/**
+ * {@link ValueParser} implementation for {@link java.util.regex.Pattern} values.
+ */
 public class PatternValueParser implements ValueParser<Pattern> {
 
     @Override

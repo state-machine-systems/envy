@@ -4,6 +4,9 @@ import com.statemachinesystems.envy.ValueParser;
 
 import java.io.File;
 
+/**
+ * {@link ValueParser} implementation for {@link java.io.File} values.
+ */
 public class FileValueParser implements ValueParser<File> {
 
     @Override

@@ -4,6 +4,9 @@ import com.statemachinesystems.envy.ValueParser;
 
 import java.net.Inet6Address;
 
+/**
+ * {@link ValueParser} implementation for {@link java.net.Inet6Address} values.
+ */
 public class Inet6AddressValueParser implements ValueParser<Inet6Address> {
 
     private final InetAddressValueParser valueParser = new InetAddressValueParser();

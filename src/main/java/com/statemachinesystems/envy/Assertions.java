@@ -2,6 +2,9 @@ package com.statemachinesystems.envy;
 
 import java.lang.reflect.Method;
 
+/**
+ * Helper class for asserting reflection pre-conditions.
+ */
 public class Assertions {
 
     public static void assertInterface(Class<?> c) {

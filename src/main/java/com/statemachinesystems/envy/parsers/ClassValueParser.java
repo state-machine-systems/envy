@@ -2,6 +2,9 @@ package com.statemachinesystems.envy.parsers;
 
 import com.statemachinesystems.envy.ValueParser;
 
+/**
+ * {@link ValueParser} implementation for {@link java.lang.Class} values.
+ */
 public class ClassValueParser implements ValueParser<Class> {
 
     private final ClassLoader classLoader;

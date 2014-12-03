@@ -5,6 +5,9 @@ import com.statemachinesystems.envy.ValueParser;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * {@link ValueParser} implementation for {@link java.net.URL} values.
+ */
 public class UrlValueParser implements ValueParser<URL> {
 
     @Override

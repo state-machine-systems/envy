@@ -2,6 +2,10 @@ package com.statemachinesystems.envy;
 
 import java.util.regex.Pattern;
 
+/**
+ * An identifier representing either a JVM system property in
+ * lower.case.dotted format or an environment variable in UPPER_CASE_UNDERSCORED format.
+ */
 public class Parameter {
 
     private static final String unicodeAlphaNumeric = "[\\p{L}\\d]+";
