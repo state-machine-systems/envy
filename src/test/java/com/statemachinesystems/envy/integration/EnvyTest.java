@@ -3,6 +3,7 @@ package com.statemachinesystems.envy.integration;
 import com.statemachinesystems.envy.Default;
 import com.statemachinesystems.envy.Envy;
 import com.statemachinesystems.envy.Name;
+import com.statemachinesystems.envy.Optional;
 import com.statemachinesystems.envy.example.MyClass;
 import com.statemachinesystems.envy.example.MyCustomClass;
 import com.statemachinesystems.envy.example.MyCustomClassParser;
@@ -10,9 +11,7 @@ import com.statemachinesystems.envy.example.MyEnum;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class EnvyTest {
 
@@ -33,6 +32,9 @@ public class EnvyTest {
 
         @Name("com.foo.long.and.awkward.name")
         String withCustomName();
+
+        @Optional
+        String mightBeNull();
     }
 
     private ExampleConfig config;
@@ -92,5 +94,10 @@ public class EnvyTest {
     @Test
     public void usesCustomNameAnnotation() {
         assertEquals("xyz", config.withCustomName());
+    }
+
+    @Test
+    public void returnsNullForUndefinedOptionalParameter() {
+        assertNull(config.mightBeNull());
     }
 }
