@@ -4,6 +4,9 @@ import com.statemachinesystems.envy.ValueParser;
 
 import java.util.UUID;
 
+/**
+ * {@link ValueParser} implementation for {@link java.util.UUID} values.
+ */
 public class UuidValueParser implements ValueParser<UUID> {
 
     @Override

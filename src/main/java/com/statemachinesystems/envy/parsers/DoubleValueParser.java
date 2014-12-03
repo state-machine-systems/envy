@@ -2,6 +2,9 @@ package com.statemachinesystems.envy.parsers;
 
 import com.statemachinesystems.envy.ValueParser;
 
+/**
+ * {@link ValueParser} implementation for {@link java.lang.Double} values.
+ */
 public class DoubleValueParser implements ValueParser<Double> {
 
     @Override

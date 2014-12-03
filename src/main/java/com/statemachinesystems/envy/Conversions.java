@@ -6,6 +6,9 @@ import java.util.Map;
 
 import static com.statemachinesystems.envy.Assertions.assertArray;
 
+/**
+ * Helper class for converting between primitive and boxed types.
+ */
 public class Conversions {
 
     private static final Map<Class<?>, Class<?>> primitiveToBoxed = new HashMap<Class<?>, Class<?>>();

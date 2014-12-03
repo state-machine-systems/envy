@@ -6,6 +6,9 @@ import java.net.InetSocketAddress;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * {@link ValueParser} implementation for {@link java.net.InetSocketAddress} values.
+ */
 public class InetSocketAddressValueParser implements ValueParser<InetSocketAddress> {
 
     private static final Pattern HOST_AND_PORT = Pattern.compile("(.*):(\\d+)$");

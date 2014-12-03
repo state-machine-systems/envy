@@ -11,6 +11,11 @@ import java.util.Map;
 
 import static com.statemachinesystems.envy.Conversions.toBoxed;
 
+/**
+ * Creates {@link com.statemachinesystems.envy.ValueParser} instances with special
+ * support for arrays, enums and types with a constructor that takes
+ * a single {@link java.lang.String} argument (see {@link com.statemachinesystems.envy.parsers.ReflectionValueParser}).
+ */
 public class ValueParserFactory {
 
     private final Map<Class<?>, ValueParser<?>> valueParsers;
@@ -27,6 +32,12 @@ public class ValueParserFactory {
         }
     }
 
+    /**
+     * Creates a {@link com.statemachinesystems.envy.ValueParser} for the given class.
+     *
+     * @param propertyClass  the class for which to create the {@link com.statemachinesystems.envy.ValueParser}
+     * @return               a {@link com.statemachinesystems.envy.ValueParser} for the given class
+     */
     public ValueParser<?> getValueParser(Class<?> propertyClass) {
         return getValueParser(propertyClass, true);
     }

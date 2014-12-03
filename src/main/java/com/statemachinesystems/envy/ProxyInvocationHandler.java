@@ -1,6 +1,5 @@
 package com.statemachinesystems.envy;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -8,6 +7,14 @@ import java.util.Map;
 
 import static com.statemachinesystems.envy.Assertions.assertMethodWithNoParameters;
 
+/**
+ * Handles method calls on proxied configuration interfaces.
+ *
+ * Method names and types on the interface are mapped to {@link com.statemachinesystems.envy.Parameter}s
+ * and {@link com.statemachinesystems.envy.ValueParser}s.
+ *
+ * @see java.lang.reflect.InvocationHandler
+ */
 public class ProxyInvocationHandler implements InvocationHandler {
 
     public static ProxyInvocationHandler createInvocationHandler(

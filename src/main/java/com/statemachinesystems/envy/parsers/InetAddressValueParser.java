@@ -5,6 +5,9 @@ import com.statemachinesystems.envy.ValueParser;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+/**
+ * {@link ValueParser} implementation for {@link java.net.InetAddress} values.
+ */
 public class InetAddressValueParser implements ValueParser<InetAddress> {
 
     @Override

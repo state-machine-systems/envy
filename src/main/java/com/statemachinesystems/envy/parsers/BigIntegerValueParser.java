@@ -4,6 +4,9 @@ import com.statemachinesystems.envy.ValueParser;
 
 import java.math.BigInteger;
 
+/**
+ * {@link ValueParser} implementation for {@link java.math.BigInteger} values.
+ */
 public class BigIntegerValueParser implements ValueParser<BigInteger> {
 
     @Override

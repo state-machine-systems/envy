@@ -4,6 +4,11 @@ import com.statemachinesystems.envy.ValueParser;
 
 import static com.statemachinesystems.envy.Assertions.assertEnum;
 
+/**
+ * {@link ValueParser} implementation for enum values.
+ *
+ * @param <T>  the enum type to be parsed
+ */
 public class EnumValueParser<T extends Enum<T>> implements ValueParser<T> {
 
     private final Class<T> enumClass;

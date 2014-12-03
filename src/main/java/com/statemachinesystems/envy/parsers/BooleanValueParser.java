@@ -5,6 +5,9 @@ import com.statemachinesystems.envy.ValueParser;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * {@link ValueParser} implementation for {@link java.lang.Boolean} values.
+ */
 public class BooleanValueParser implements ValueParser<Boolean> {
 
     public static BooleanValueParser createParser(Map<String, Boolean> acceptedValues) {
