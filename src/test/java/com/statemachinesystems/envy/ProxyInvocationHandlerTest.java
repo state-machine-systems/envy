@@ -13,6 +13,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ProxyInvocationHandlerTest {
 
@@ -28,6 +29,17 @@ public class ProxyInvocationHandlerTest {
 
         @Name("custom.parameter.name")
         String stringWithCustomName();
+
+        @Optional
+        String optionalNonNull();
+
+        @Optional
+        String optionalNull();
+    }
+
+    public static interface BadConfigCombiningOptionalWithPrimitive {
+        @Optional
+        int notOptional();
     }
 
     private ConfigSource configSource;
@@ -43,6 +55,7 @@ public class ProxyInvocationHandlerTest {
         params.put(new Parameter("AN_ARRAY_OF_BOXED_INTEGERS"), "7");
         params.put(new Parameter("AN_ARRAY_OF_PRIMITIVE_INTEGERS"), "1,2,3");
         params.put(new Parameter("CUSTOM_PARAMETER_NAME"), "bar");
+        params.put(new Parameter("OPTIONAL_NON_NULL"), "non-null");
         configSource = new DummyConfigSource(params);
 
         valueParserFactory = new ValueParserFactory(new StringValueParser(), new IntegerValueParser());
@@ -85,6 +98,16 @@ public class ProxyInvocationHandlerTest {
         assertEquals("bar", invoke("stringWithCustomName"));
     }
 
+    @Test
+    public void retrievesOptionalNonNullValue() throws Throwable {
+        assertEquals("non-null", invoke("optionalNonNull"));
+    }
+
+    @Test
+    public void retrievesOptionalNullValue() throws Throwable {
+        assertNull(invoke("optionalNull"));
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void rejectsMissingParameter() {
         ConfigSource emptyConfigSource = new DummyConfigSource(Collections.<Parameter, String>emptyMap());
@@ -95,6 +118,13 @@ public class ProxyInvocationHandlerTest {
     public void rejectsUnsupportedType() {
         ValueParserFactory emptyValueParserFactory = new ValueParserFactory();
         ProxyInvocationHandler.createInvocationHandler(ExampleConfig.class, configSource, emptyValueParserFactory);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsCombinationOfOptionalAnnotationWithPrimitiveReturnType() {
+        ConfigSource configSource = new DummyConfigSource(new HashMap<Parameter, String>());
+        ValueParserFactory valueParserFactory = new ValueParserFactory();
+        ProxyInvocationHandler.createInvocationHandler(BadConfigCombiningOptionalWithPrimitive.class, configSource, valueParserFactory);
     }
 
     private Object invoke(String methodName) throws Throwable {
