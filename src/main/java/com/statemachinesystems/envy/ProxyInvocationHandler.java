@@ -29,16 +29,9 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
             Parameter parameter = getParameter(method);
             String rawValue = getRawValue(configSource, parameter, configClass, method);
-            ValueParser<?> valueParser = getValueParser(valueParserFactory, configClass, method);
-            Object parsedValue = valueParser.parseValue(rawValue);
+            Object parsedValue = parseValue(rawValue, valueParserFactory, configClass, method);
 
-            if (method.getReturnType().isArray()
-                    && method.getReturnType().getComponentType().isPrimitive()) {
-
-                values.put(method, Conversions.boxedArrayToPrimitiveArray(parsedValue));
-            } else {
-                values.put(method, parsedValue);
-            }
+            values.put(method, parsedValue);
         }
 
         return new ProxyInvocationHandler(values);
@@ -78,6 +71,23 @@ public class ProxyInvocationHandler implements InvocationHandler {
     private static boolean isMandatory(Method method) {
         return method.getReturnType().isPrimitive()
             || method.getAnnotation(Optional.class) == null;
+    }
+
+    private static Object parseValue(String rawValue,
+                                     ValueParserFactory valueParserFactory,
+                                     Class<?> configClass,
+                                     Method method) {
+        if (rawValue == null) {
+            return rawValue;
+        }
+
+        ValueParser<?> valueParser = getValueParser(valueParserFactory, configClass, method);
+        Object parsedValue = valueParser.parseValue(rawValue);
+
+        return Conversions.isPrimitiveArray(method.getReturnType())
+                ? Conversions.boxedArrayToPrimitiveArray(parsedValue)
+                : parsedValue;
+
     }
 
     private static ValueParser<?> getValueParser(ValueParserFactory valueParserFactory,

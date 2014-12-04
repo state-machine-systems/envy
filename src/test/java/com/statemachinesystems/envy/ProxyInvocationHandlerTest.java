@@ -31,10 +31,10 @@ public class ProxyInvocationHandlerTest {
         String stringWithCustomName();
 
         @Optional
-        String optionalNonNull();
+        Integer optionalNonNull();
 
         @Optional
-        String optionalNull();
+        Integer optionalNull();
     }
 
     public static interface BadConfigCombiningOptionalWithPrimitive {
@@ -55,7 +55,7 @@ public class ProxyInvocationHandlerTest {
         params.put(new Parameter("AN_ARRAY_OF_BOXED_INTEGERS"), "7");
         params.put(new Parameter("AN_ARRAY_OF_PRIMITIVE_INTEGERS"), "1,2,3");
         params.put(new Parameter("CUSTOM_PARAMETER_NAME"), "bar");
-        params.put(new Parameter("OPTIONAL_NON_NULL"), "non-null");
+        params.put(new Parameter("OPTIONAL_NON_NULL"), "5");
         configSource = new DummyConfigSource(params);
 
         valueParserFactory = new ValueParserFactory(new StringValueParser(), new IntegerValueParser());
@@ -100,7 +100,7 @@ public class ProxyInvocationHandlerTest {
 
     @Test
     public void retrievesOptionalNonNullValue() throws Throwable {
-        assertEquals("non-null", invoke("optionalNonNull"));
+        assertEquals(5, invoke("optionalNonNull"));
     }
 
     @Test

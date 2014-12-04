@@ -49,6 +49,10 @@ public class Conversions {
         return primitive;
     }
 
+    public static boolean isPrimitiveArray(Class<?> c) {
+        return c.isArray() && c.getComponentType().isPrimitive();
+    }
+
     public static Object boxedArrayToPrimitiveArray(Object src) {
         assertArray(src.getClass());
 
