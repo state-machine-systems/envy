@@ -26,6 +26,19 @@ This also works for JVM system properties, using a lower-case dotted naming conv
 which would be `api.key` and `api.secret` in the above example. When an environment variable and a
 system property are both defined with equivalent names, the system property takes precedence.
 
+### Getting started
+
+Envy's in the Maven Central repo, so just add the following chunk to your pom.xml
+(or the equivalent for Gradle/SBT/whatever):
+
+    <dependency>
+        <groupId>com.statemachinesystems</groupId>
+        <artifactId>envy</artifactId>
+        <version>1.1.1</version>
+    </dependency>
+
+## Features
+
 ### Default values
 
 Envy treats all parameters as mandatory - nulls are bad.
