@@ -11,9 +11,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 public class ProxyInvocationHandlerTest {
 
@@ -127,8 +126,27 @@ public class ProxyInvocationHandlerTest {
         ProxyInvocationHandler.createInvocationHandler(BadConfigCombiningOptionalWithPrimitive.class, configSource, valueParserFactory);
     }
 
+    @Test
+    public void toStringMethodFormatsUsingMethodNamesInSourceOrder() throws Throwable {
+        Object expectedFormat = "{" +
+                "getAString=foo, " +
+                "getABoxedInteger=10, " +
+                "getAPrimitiveInteger=15, " +
+                "getAnArrayOfBoxedIntegers=[7], " +
+                "getAnArrayOfPrimitiveIntegers=[1, 2, 3], " +
+                "defaultedString=default value, " +
+                "stringWithCustomName=bar, " +
+                "optionalNonNull=5, " +
+                "optionalNull=null" +
+                "}";
+        assertThat(invoke(Object.class.getMethod("toString")), is(expectedFormat));
+    }
+
     private Object invoke(String methodName) throws Throwable {
-        Method method = ExampleConfig.class.getMethod(methodName);
+        return invoke(ExampleConfig.class.getMethod(methodName));
+    }
+
+    private Object invoke(Method method) throws Throwable {
         return invocationHandler.invoke(null, method, new Object[] {});
     }
 }

@@ -1,8 +1,9 @@
 package com.statemachinesystems.envy;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.statemachinesystems.envy.Assertions.assertMethodWithNoParameters;
@@ -22,7 +23,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
             ConfigSource configSource,
             ValueParserFactory valueParserFactory) {
 
-        Map<Method, Object> values = new HashMap<Method, Object>();
+        Map<Method, Object> values = new LinkedHashMap<Method, Object>();
 
         for (Method method : configClass.getDeclaredMethods()) {
             assertMethodWithNoParameters(method);
@@ -78,7 +79,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
                                      Class<?> configClass,
                                      Method method) {
         if (rawValue == null) {
-            return rawValue;
+            return null;
         }
 
         ValueParser<?> valueParser = getValueParser(valueParserFactory, configClass, method);
@@ -102,6 +103,40 @@ public class ProxyInvocationHandler implements InvocationHandler {
         }
     }
 
+
+    private static boolean isToStringMethod(Method method) {
+        if (toStringMethod == null) {
+            try {
+                toStringMethod = Object.class.getMethod("toString");
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        return method.equals(toStringMethod);
+    }
+
+    private static String formatValue(Object value) {
+        return value != null && value.getClass().isArray()
+                ? formatArray(value)
+                : String.valueOf(value);
+    }
+
+    private static String formatArray(Object array) {
+        StringBuilder buf = new StringBuilder();
+        buf.append('[');
+        int length = Array.getLength(array);
+        for (int i = 0; i < length; i++) {
+            if (i > 0) {
+                buf.append(", ");
+            }
+            buf.append(Array.get(array, i));
+        }
+        buf.append(']');
+        return buf.toString();
+    }
+
+    private static Method toStringMethod;
+
     private final Map<Method, Object> values;
 
     private ProxyInvocationHandler(Map<Method, Object> values) {
@@ -110,6 +145,24 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object o, Method method, Object[] args) throws Throwable {
-        return values.get(method);
+        return isToStringMethod(method)
+                ? toString()
+                : values.get(method);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
+        buf.append('{');
+        for (Method method : values.keySet()) {
+            if (buf.length() > 1) {
+                buf.append(", ");
+            }
+            buf.append(method.getName())
+                    .append('=')
+                    .append(formatValue(values.get(method)));
+        }
+        buf.append('}');
+        return buf.toString();
     }
 }
