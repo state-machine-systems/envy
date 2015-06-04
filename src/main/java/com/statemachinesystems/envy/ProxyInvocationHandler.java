@@ -79,7 +79,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
                                      Class<?> configClass,
                                      Method method) {
         if (rawValue == null) {
-            return rawValue;
+            return null;
         }
 
         ValueParser<?> valueParser = getValueParser(valueParserFactory, configClass, method);
@@ -103,6 +103,40 @@ public class ProxyInvocationHandler implements InvocationHandler {
         }
     }
 
+
+    private static boolean isToStringMethod(Method method) {
+        if (toStringMethod == null) {
+            try {
+                toStringMethod = Object.class.getMethod("toString");
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        return method.equals(toStringMethod);
+    }
+
+    private static String formatValue(Object value) {
+        return value != null && value.getClass().isArray()
+                ? formatArray(value)
+                : String.valueOf(value);
+    }
+
+    private static String formatArray(Object array) {
+        StringBuilder buf = new StringBuilder();
+        buf.append('[');
+        int length = Array.getLength(array);
+        for (int i = 0; i < length; i++) {
+            if (i > 0) {
+                buf.append(", ");
+            }
+            buf.append(Array.get(array, i));
+        }
+        buf.append(']');
+        return buf.toString();
+    }
+
+    private static Method toStringMethod;
+
     private final Map<Method, Object> values;
 
     private ProxyInvocationHandler(Map<Method, Object> values) {
@@ -111,7 +145,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object o, Method method, Object[] args) throws Throwable {
-        return isToString(method)
+        return isToStringMethod(method)
                 ? toString()
                 : values.get(method);
     }
@@ -129,31 +163,6 @@ public class ProxyInvocationHandler implements InvocationHandler {
                     .append(formatValue(values.get(method)));
         }
         buf.append('}');
-        return buf.toString();
-    }
-
-    private boolean isToString(Method method) {
-        // TODO cache
-        return method.getName().equals("toString") && method.getDeclaringClass().equals(Object.class);
-    }
-
-    private String formatValue(Object value) {
-        return value != null && value.getClass().isArray()
-            ? formatArray(value)
-            : String.valueOf(value);
-    }
-
-    private String formatArray(Object array) {
-        StringBuilder buf = new StringBuilder();
-        buf.append('[');
-        int length = Array.getLength(array);
-        for (int i = 0; i < length; i++) {
-            if (i > 0) {
-                buf.append(", ");
-            }
-            buf.append(Array.get(array, i));
-        }
-        buf.append(']');
         return buf.toString();
     }
 }
