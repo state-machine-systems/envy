@@ -1,8 +1,9 @@
 package com.statemachinesystems.envy;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.statemachinesystems.envy.Assertions.assertMethodWithNoParameters;
@@ -22,7 +23,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
             ConfigSource configSource,
             ValueParserFactory valueParserFactory) {
 
-        Map<Method, Object> values = new HashMap<Method, Object>();
+        Map<Method, Object> values = new LinkedHashMap<Method, Object>();
 
         for (Method method : configClass.getDeclaredMethods()) {
             assertMethodWithNoParameters(method);
@@ -110,6 +111,49 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object o, Method method, Object[] args) throws Throwable {
-        return values.get(method);
+        return isToString(method)
+                ? toString()
+                : values.get(method);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
+        buf.append('{');
+        for (Method method : values.keySet()) {
+            if (buf.length() > 1) {
+                buf.append(", ");
+            }
+            buf.append(method.getName())
+                    .append('=')
+                    .append(formatValue(values.get(method)));
+        }
+        buf.append('}');
+        return buf.toString();
+    }
+
+    private boolean isToString(Method method) {
+        // TODO cache
+        return method.getName().equals("toString") && method.getDeclaringClass().equals(Object.class);
+    }
+
+    private String formatValue(Object value) {
+        return value != null && value.getClass().isArray()
+            ? formatArray(value)
+            : String.valueOf(value);
+    }
+
+    private String formatArray(Object array) {
+        StringBuilder buf = new StringBuilder();
+        buf.append('[');
+        int length = Array.getLength(array);
+        for (int i = 0; i < length; i++) {
+            if (i > 0) {
+                buf.append(", ");
+            }
+            buf.append(Array.get(array, i));
+        }
+        buf.append(']');
+        return buf.toString();
     }
 }
