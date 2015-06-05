@@ -29,4 +29,12 @@ public class MyCustomClass {
         result = 31 * result + bar;
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "MyCustomClass{" +
+                "foo='" + foo + '\'' +
+                ", bar=" + bar +
+                '}';
+    }
 }
