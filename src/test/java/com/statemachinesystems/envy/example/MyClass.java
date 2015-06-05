@@ -23,4 +23,11 @@ public class MyClass {
     public int hashCode() {
         return value.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "MyClass{" +
+                "value='" + value + '\'' +
+                '}';
+    }
 }
