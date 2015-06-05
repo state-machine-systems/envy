@@ -35,6 +35,14 @@ public class Assertions {
         }
     }
 
+    public static void assertMethodWithNonVoidReturnType(Method m) {
+        if (Conversions.toBoxed(m.getReturnType()).equals(Void.class)) {
+            throw new IllegalArgumentException(
+                    String.format("%s must not have a void return type", m.getName()));
+
+        }
+    }
+
     public static void assertNotObjectMethod(Method m) {
         Method objectMethod;
         try {

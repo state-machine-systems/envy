@@ -43,6 +43,10 @@ public class ProxyInvocationHandlerTest {
         String toString();
     }
 
+    public interface BadConfigWithVoidReturnType {
+        void methodWithVoidReturnType();
+    }
+
     private DummyConfigSource configSource;
     private ValueParserFactory valueParserFactory;
     private ProxyInvocationHandler invocationHandler;
@@ -147,6 +151,24 @@ public class ProxyInvocationHandlerTest {
     public void overriddenObjectMethodsAreRejected() {
         DummyConfigSource configSource = new DummyConfigSource().add("to.string", "bad");
         ProxyInvocationHandler.createInvocationHandler(BadConfigWithOverriddenObjectMethod.class, configSource,
+                valueParserFactory);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void voidReturnTypesAreRejected() {
+        DummyConfigSource configSource = new DummyConfigSource().add("method.with.void.return.type", "bad");
+        ValueParserFactory valueParserFactory = new ValueParserFactory(new ValueParser<Void>() {
+            @Override
+            public Void parseValue(String value) {
+                return null;
+            }
+
+            @Override
+            public Class<Void> getValueClass() {
+                return Void.class;
+            }
+        });
+        ProxyInvocationHandler.createInvocationHandler(BadConfigWithVoidReturnType.class, configSource,
                 valueParserFactory);
     }
 
