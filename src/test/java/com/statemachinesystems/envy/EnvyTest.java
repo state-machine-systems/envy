@@ -10,9 +10,8 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 public class EnvyTest {
 
@@ -111,5 +110,28 @@ public class EnvyTest {
     public void equalsMethodOnProxiesReturnsFalseForNullArgument() {
         Config config = envy().proxy(Config.class);
         assertFalse(config.equals(null));
+    }
+
+    @Test
+    public void hashCodeMethodReturnsTheSameResultForEqualProxyInstances() {
+        Config config1 = envy().proxy(Config.class);
+        Config config2 = envy().proxy(Config.class);
+
+        assertThat(config1.hashCode(), is(config2.hashCode()));
+    }
+
+    @Test
+    public void hashCodeMethodReturnsDifferentResultsForUnequalProxyInstances() {
+        DummyConfigSource configSource1 = new DummyConfigSource()
+                .add("foo", "foo1")
+                .add("bar", "bar");
+        DummyConfigSource configSource2 = new DummyConfigSource()
+                .add("foo", "foo2")
+                .add("bar", "bar");
+
+        Config config1 = new Envy(valueParserFactory, configSource1).proxy(Config.class);
+        Config config2 = new Envy(valueParserFactory, configSource2).proxy(Config.class);
+
+        assertNotEquals(config1.hashCode(), config2.hashCode());
     }
 }

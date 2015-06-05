@@ -134,6 +134,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
     private static final Method TO_STRING_METHOD = getObjectMethod("toString");
     private static final Method EQUALS_METHOD = getObjectMethod("equals", Object.class);
+    private static final Method HASH_CODE_METHOD = getObjectMethod("hashCode");
 
     private final Map<Method, Object> values;
 
@@ -147,6 +148,8 @@ public class ProxyInvocationHandler implements InvocationHandler {
             return toString();
         } else if (EQUALS_METHOD.equals(method)) {
             return proxyEquals(proxy, args[0]);
+        } else if (HASH_CODE_METHOD.equals(method)) {
+            return proxyHashCode();
         } else {
             return values.get(method);
         }
@@ -182,5 +185,9 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
         return otherHandler instanceof ProxyInvocationHandler
                 && ((ProxyInvocationHandler) otherHandler).values.equals(values);
+    }
+
+    private int proxyHashCode() {
+        return values.hashCode();
     }
 }
