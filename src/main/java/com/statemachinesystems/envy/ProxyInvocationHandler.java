@@ -144,15 +144,19 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (TO_STRING_METHOD.equals(method)) {
-            return toString();
-        } else if (EQUALS_METHOD.equals(method)) {
-            return proxyEquals(proxy, args[0]);
-        } else if (HASH_CODE_METHOD.equals(method)) {
-            return proxyHashCode();
-        } else {
-            return values.get(method);
+        Object value = values.get(method);
+
+        if (value == null) {
+            if (TO_STRING_METHOD.equals(method)) {
+                return toString();
+            } else if (EQUALS_METHOD.equals(method)) {
+                return proxyEquals(proxy, args[0]);
+            } else if (HASH_CODE_METHOD.equals(method)) {
+                return proxyHashCode();
+            }
         }
+
+        return value;
     }
 
     @Override
