@@ -3,6 +3,7 @@ package com.statemachinesystems.envy;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -103,16 +104,12 @@ public class ProxyInvocationHandler implements InvocationHandler {
         }
     }
 
-
-    private static boolean isToStringMethod(Method method) {
-        if (toStringMethod == null) {
-            try {
-                toStringMethod = Object.class.getMethod("toString");
-            } catch (Exception e) {
-                throw new IllegalStateException(e);
-            }
+    private static Method getObjectMethod(String name, Class<?>... argumentTypes) {
+        try {
+            return Object.class.getMethod(name, argumentTypes);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
-        return method.equals(toStringMethod);
     }
 
     private static String formatValue(Object value) {
@@ -135,7 +132,8 @@ public class ProxyInvocationHandler implements InvocationHandler {
         return buf.toString();
     }
 
-    private static Method toStringMethod;
+    private static final Method TO_STRING_METHOD = getObjectMethod("toString");
+    private static final Method EQUALS_METHOD = getObjectMethod("equals", Object.class);
 
     private final Map<Method, Object> values;
 
@@ -144,10 +142,14 @@ public class ProxyInvocationHandler implements InvocationHandler {
     }
 
     @Override
-    public Object invoke(Object o, Method method, Object[] args) throws Throwable {
-        return isToStringMethod(method)
-                ? toString()
-                : values.get(method);
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if (TO_STRING_METHOD.equals(method)) {
+            return toString();
+        } else if (EQUALS_METHOD.equals(method)) {
+            return proxyEquals(proxy, args[0]);
+        } else {
+            return values.get(method);
+        }
     }
 
     @Override
@@ -164,5 +166,21 @@ public class ProxyInvocationHandler implements InvocationHandler {
         }
         buf.append('}');
         return buf.toString();
+    }
+
+    private boolean proxyEquals(Object proxy, Object other) {
+        if (other == null) {
+            return false;
+        }
+
+        InvocationHandler otherHandler;
+        try {
+            otherHandler = Proxy.getInvocationHandler(other);
+        } catch (Exception ignored) {
+            return false;
+        }
+
+        return otherHandler instanceof ProxyInvocationHandler
+                && ((ProxyInvocationHandler) otherHandler).values.equals(values);
     }
 }
