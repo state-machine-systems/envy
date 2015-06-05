@@ -38,6 +38,11 @@ public class ProxyInvocationHandlerTest {
         int notOptional();
     }
 
+    public interface BadConfigWithOverriddenObjectMethod {
+        @Override
+        String toString();
+    }
+
     private DummyConfigSource configSource;
     private ValueParserFactory valueParserFactory;
     private ProxyInvocationHandler invocationHandler;
@@ -118,8 +123,6 @@ public class ProxyInvocationHandlerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void rejectsCombinationOfOptionalAnnotationWithPrimitiveReturnType() {
-        ConfigSource configSource = new DummyConfigSource();
-        ValueParserFactory valueParserFactory = new ValueParserFactory();
         ProxyInvocationHandler.createInvocationHandler(BadConfigCombiningOptionalWithPrimitive.class, configSource,
                 valueParserFactory);
     }
@@ -138,6 +141,13 @@ public class ProxyInvocationHandlerTest {
                 "optionalNull=null" +
                 "}";
         assertThat(invoke(Object.class.getMethod("toString")), is(expectedFormat));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void overriddenObjectMethodsAreRejected() {
+        DummyConfigSource configSource = new DummyConfigSource().add("to.string", "bad");
+        ProxyInvocationHandler.createInvocationHandler(BadConfigWithOverriddenObjectMethod.class, configSource,
+                valueParserFactory);
     }
 
     private Object invoke(String methodName) throws Throwable {

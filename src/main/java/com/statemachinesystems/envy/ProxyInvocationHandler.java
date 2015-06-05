@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.statemachinesystems.envy.Assertions.assertMethodWithNoParameters;
+import static com.statemachinesystems.envy.Assertions.assertNotObjectMethod;
 
 /**
  * Handles method calls on proxied configuration interfaces.
@@ -28,6 +29,7 @@ public class ProxyInvocationHandler implements InvocationHandler {
 
         for (Method method : configClass.getDeclaredMethods()) {
             assertMethodWithNoParameters(method);
+            assertNotObjectMethod(method);
 
             Parameter parameter = getParameter(method);
             String rawValue = getRawValue(configSource, parameter, configClass, method);
