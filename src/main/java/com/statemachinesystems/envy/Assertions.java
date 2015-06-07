@@ -35,5 +35,27 @@ public class Assertions {
         }
     }
 
+    public static void assertMethodWithNonVoidReturnType(Method m) {
+        if (Conversions.toBoxed(m.getReturnType()).equals(Void.class)) {
+            throw new IllegalArgumentException(
+                    String.format("%s must not have a void return type", m.getName()));
+
+        }
+    }
+
+    public static void assertNotObjectMethod(Method m) {
+        Method objectMethod;
+        try {
+            objectMethod = Object.class.getMethod(m.getName());
+        } catch (NoSuchMethodException e) {
+            objectMethod = null;
+        }
+
+        if (objectMethod != null && objectMethod.getReturnType().equals(m.getReturnType())) {
+            throw new IllegalArgumentException(
+                    String.format("Illegal overridden java.lang.Object method: %s", m.getName()));
+        }
+    }
+
     private Assertions() {}
 }

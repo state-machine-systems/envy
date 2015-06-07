@@ -29,6 +29,8 @@ public class EnvyIntegrationTest {
 
         @Optional
         String mightBeNull();
+
+        Object objectType();
     }
 
     private ExampleConfig config;
@@ -93,5 +95,10 @@ public class EnvyIntegrationTest {
     @Test
     public void returnsNullForUndefinedOptionalParameter() {
         assertNull(config.mightBeNull());
+    }
+
+    @Test
+    public void returnsStringForObjectTypeParameter() {
+        assertEquals("example", config.objectType());
     }
 }

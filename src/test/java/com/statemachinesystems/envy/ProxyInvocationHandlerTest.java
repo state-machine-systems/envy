@@ -2,12 +2,14 @@ package com.statemachinesystems.envy;
 
 import com.statemachinesystems.envy.example.DummyConfigSource;
 import com.statemachinesystems.envy.parsers.IntegerValueParser;
+import com.statemachinesystems.envy.parsers.ObjectAsStringValueParser;
 import com.statemachinesystems.envy.parsers.StringValueParser;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
@@ -31,11 +33,22 @@ public class ProxyInvocationHandlerTest {
 
         @Optional
         Integer optionalNull();
+
+        Object methodWithObjectReturnType();
     }
 
     public interface BadConfigCombiningOptionalWithPrimitive {
         @Optional
         int notOptional();
+    }
+
+    public interface BadConfigWithOverriddenObjectMethod {
+        @Override
+        String toString();
+    }
+
+    public interface BadConfigWithVoidReturnType {
+        void methodWithVoidReturnType();
     }
 
     private DummyConfigSource configSource;
@@ -51,9 +64,11 @@ public class ProxyInvocationHandlerTest {
                 .add("AN_ARRAY_OF_BOXED_INTEGERS", "7")
                 .add("AN_ARRAY_OF_PRIMITIVE_INTEGERS", "1,2,3")
                 .add("CUSTOM_PARAMETER_NAME", "bar")
-                .add("OPTIONAL_NON_NULL", "5");
+                .add("OPTIONAL_NON_NULL", "5")
+                .add("METHOD_WITH_OBJECT_RETURN_TYPE", "bar");
 
-        valueParserFactory = new ValueParserFactory(new StringValueParser(), new IntegerValueParser());
+        valueParserFactory = new ValueParserFactory(new StringValueParser(), new IntegerValueParser(),
+                new ObjectAsStringValueParser());
 
         invocationHandler = ProxyInvocationHandler.createInvocationHandler(ExampleConfig.class, configSource,
                 valueParserFactory);
@@ -118,26 +133,66 @@ public class ProxyInvocationHandlerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void rejectsCombinationOfOptionalAnnotationWithPrimitiveReturnType() {
-        ConfigSource configSource = new DummyConfigSource();
-        ValueParserFactory valueParserFactory = new ValueParserFactory();
         ProxyInvocationHandler.createInvocationHandler(BadConfigCombiningOptionalWithPrimitive.class, configSource,
                 valueParserFactory);
     }
 
     @Test
-    public void toStringMethodFormatsUsingMethodNamesInSourceOrder() throws Throwable {
-        Object expectedFormat = "{" +
-                "getAString=foo, " +
-                "getABoxedInteger=10, " +
-                "getAPrimitiveInteger=15, " +
-                "getAnArrayOfBoxedIntegers=[7], " +
-                "getAnArrayOfPrimitiveIntegers=[1, 2, 3], " +
-                "defaultedString=default value, " +
-                "stringWithCustomName=bar, " +
-                "optionalNonNull=5, " +
-                "optionalNull=null" +
-                "}";
-        assertThat(invoke(Object.class.getMethod("toString")), is(expectedFormat));
+    public void toStringMethodFormatsUsingMethodNames() throws Throwable {
+        String format = (String) invoke(Object.class.getMethod("toString"));
+
+        String[] expectedParts = {
+                "getAString=foo",
+                "getABoxedInteger=10",
+                "getAPrimitiveInteger=15",
+                "getAnArrayOfBoxedIntegers=[7]",
+                "getAnArrayOfPrimitiveIntegers=[1, 2, 3]",
+                "defaultedString=default value",
+                "stringWithCustomName=bar",
+                "optionalNonNull=5",
+                "optionalNull=null",
+                "methodWithObjectReturnType=bar",
+        };
+
+        for (String part : expectedParts) {
+            assertThat(format, containsString(part));
+        }
+
+        int expectedLength = "{".length();
+        for (int i = 0; i < expectedParts.length; i++) {
+            if (i > 0) {
+                expectedLength += ", ".length();
+            }
+            expectedLength += expectedParts[i].length();
+        }
+        expectedLength += "}".length();
+
+        assertThat(format.length(), is(expectedLength));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void overriddenObjectMethodsAreRejected() {
+        DummyConfigSource configSource = new DummyConfigSource().add("to.string", "bad");
+        ProxyInvocationHandler.createInvocationHandler(BadConfigWithOverriddenObjectMethod.class, configSource,
+                valueParserFactory);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void voidReturnTypesAreRejected() {
+        DummyConfigSource configSource = new DummyConfigSource().add("method.with.void.return.type", "bad");
+        ValueParserFactory valueParserFactory = new ValueParserFactory(new ValueParser<Void>() {
+            @Override
+            public Void parseValue(String value) {
+                return null;
+            }
+
+            @Override
+            public Class<Void> getValueClass() {
+                return Void.class;
+            }
+        });
+        ProxyInvocationHandler.createInvocationHandler(BadConfigWithVoidReturnType.class, configSource,
+                valueParserFactory);
     }
 
     private Object invoke(String methodName) throws Throwable {
