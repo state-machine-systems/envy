@@ -28,14 +28,9 @@ system property are both defined with equivalent names, the system property take
 
 ### Getting started
 
-Envy's in the Maven Central repo, so just add the following chunk to your pom.xml
-(or the equivalent for Gradle/SBT/whatever):
-
-    <dependency>
-        <groupId>com.statemachinesystems</groupId>
-        <artifactId>envy</artifactId>
-        <version>1.1.1</version>
-    </dependency>
+Envy's in the Maven Central repo, so just add the
+[latest version](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.statemachinesystems%22%20AND%20a%3A%22envy%22)
+as a dependency in your Maven/SBT/Gradle/whatever build.
 
 ## Features
 
@@ -115,4 +110,4 @@ Then, when instantiating your configuration, pass along an instance of your pars
     MyConfig config = Envy.configure(MyConfig.class, new MyCustomTypeParser());
 
 
-&copy; 2014 State Machine Systems Ltd. [Apache Licence, Version 2.0]( http://www.apache.org/licenses/LICENSE-2.0)
+&copy; 2015 State Machine Systems Ltd. [Apache Licence, Version 2.0]( http://www.apache.org/licenses/LICENSE-2.0)
