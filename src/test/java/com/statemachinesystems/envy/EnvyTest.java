@@ -146,5 +146,6 @@ public class EnvyTest {
 
         Object deserialized = new ObjectInputStream(new ByteArrayInputStream(out.toByteArray())).readObject();
         assertThat(deserialized, instanceOf(Config.class));
+        assertThat((Config) deserialized, is(config));
     }
 }
