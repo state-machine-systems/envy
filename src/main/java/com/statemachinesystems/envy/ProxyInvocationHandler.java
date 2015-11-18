@@ -1,5 +1,6 @@
 package com.statemachinesystems.envy;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -17,14 +18,14 @@ import static com.statemachinesystems.envy.Assertions.*;
  *
  * @see java.lang.reflect.InvocationHandler
  */
-public class ProxyInvocationHandler implements InvocationHandler {
+public class ProxyInvocationHandler implements InvocationHandler, Serializable {
 
     public static ProxyInvocationHandler createInvocationHandler(
             Class<?> configClass,
             ConfigSource configSource,
             ValueParserFactory valueParserFactory) {
 
-        Map<Method, Object> values = new LinkedHashMap<Method, Object>();
+        Map<String, Object> values = new LinkedHashMap<String, Object>();
 
         for (Method method : configClass.getDeclaredMethods()) {
             assertMethodWithNoParameters(method);
@@ -35,10 +36,10 @@ public class ProxyInvocationHandler implements InvocationHandler {
             String rawValue = getRawValue(configSource, parameter, configClass, method);
             Object parsedValue = parseValue(rawValue, valueParserFactory, configClass, method);
 
-            values.put(method, parsedValue);
+            values.put(method.getName(), parsedValue);
         }
 
-        return new ProxyInvocationHandler(values);
+        return new ProxyInvocationHandler(configClass, values);
     }
 
     private static Parameter getParameter(Method method) {
@@ -138,15 +139,17 @@ public class ProxyInvocationHandler implements InvocationHandler {
     private static final Method EQUALS_METHOD = getObjectMethod("equals", Object.class);
     private static final Method HASH_CODE_METHOD = getObjectMethod("hashCode");
 
-    private final Map<Method, Object> values;
+    private final Class<?> configClass;
+    private final Map<String, Object> values;
 
-    private ProxyInvocationHandler(Map<Method, Object> values) {
+    private ProxyInvocationHandler(Class<?> configClass, Map<String, Object> values) {
+        this.configClass = configClass;
         this.values = values;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Object value = values.get(method);
+        Object value = values.get(method.getName());
 
         if (value == null) {
             if (TO_STRING_METHOD.equals(method)) {
@@ -165,13 +168,13 @@ public class ProxyInvocationHandler implements InvocationHandler {
     public String toString() {
         StringBuilder buf = new StringBuilder();
         buf.append('{');
-        for (Method method : values.keySet()) {
+        for (String methodName : values.keySet()) {
             if (buf.length() > 1) {
                 buf.append(", ");
             }
-            buf.append(method.getName())
+            buf.append(methodName)
                     .append('=')
-                    .append(formatValue(values.get(method)));
+                    .append(formatValue(values.get(methodName)));
         }
         buf.append('}');
         return buf.toString();
@@ -189,8 +192,14 @@ public class ProxyInvocationHandler implements InvocationHandler {
             return false;
         }
 
-        return otherHandler instanceof ProxyInvocationHandler
-                && ((ProxyInvocationHandler) otherHandler).values.equals(values);
+        if (!(otherHandler instanceof ProxyInvocationHandler)) {
+            return false;
+        }
+
+        ProxyInvocationHandler otherEnvyHandler = (ProxyInvocationHandler) otherHandler;
+
+        return configClass.equals(otherEnvyHandler.configClass)
+                && values.equals(otherEnvyHandler.values);
     }
 
     private int proxyHashCode() {

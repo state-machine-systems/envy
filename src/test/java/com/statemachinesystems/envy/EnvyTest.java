@@ -4,12 +4,14 @@ import com.statemachinesystems.envy.example.DummyConfigSource;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.*;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
@@ -133,5 +135,17 @@ public class EnvyTest {
         Config config2 = new Envy(valueParserFactory, configSource2).proxy(Config.class);
 
         assertNotEquals(config1.hashCode(), config2.hashCode());
+    }
+
+    @Test
+    public void proxyInstancesAreSerializable() throws IOException, ClassNotFoundException {
+        Config config = envy().proxy(Config.class);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        new ObjectOutputStream(out).writeObject(config);
+
+        Object deserialized = new ObjectInputStream(new ByteArrayInputStream(out.toByteArray())).readObject();
+        assertThat(deserialized, instanceOf(Config.class));
+        assertThat((Config) deserialized, is(config));
     }
 }
