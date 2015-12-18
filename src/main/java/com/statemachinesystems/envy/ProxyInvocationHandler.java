@@ -5,10 +5,13 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.statemachinesystems.envy.Assertions.*;
+import static java.util.Arrays.asList;
 
 /**
  * Handles method calls on proxied configuration interfaces.
@@ -27,7 +30,7 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
 
         Map<String, Object> values = new LinkedHashMap<String, Object>();
 
-        for (Method method : configClass.getDeclaredMethods()) {
+        for (Method method : getMethods(configClass)) {
             assertMethodWithNoParameters(method);
             assertNotObjectMethod(method);
             assertMethodWithNonVoidReturnType(method);
@@ -40,6 +43,15 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
         }
 
         return new ProxyInvocationHandler(configClass, values);
+    }
+
+    private static List<Method> getMethods(Class<?> configClass) {
+        List<Method> methods = new ArrayList<Method>();
+        for (Class<?> superInterface : configClass.getInterfaces()) {
+            methods.addAll(getMethods(superInterface));
+        }
+        methods.addAll(asList(configClass.getDeclaredMethods()));
+        return methods;
     }
 
     private static Parameter getParameter(Method method) {

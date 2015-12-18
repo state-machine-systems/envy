@@ -37,6 +37,19 @@ public class ProxyInvocationHandlerTest {
         Object methodWithObjectReturnType();
     }
 
+    public interface SubInterfaceConfig extends ExampleConfig {
+        String getAString();
+        int intInSubInterface();
+    }
+
+    public interface AnotherExampleConfig {
+        String getAnotherString();
+    }
+
+    public interface SubSubInterfaceConfig extends SubInterfaceConfig, AnotherExampleConfig {
+        int intInSubSubInterface();
+    }
+
     public interface BadConfigCombiningOptionalWithPrimitive {
         @Optional
         int notOptional();
@@ -65,7 +78,10 @@ public class ProxyInvocationHandlerTest {
                 .add("AN_ARRAY_OF_PRIMITIVE_INTEGERS", "1,2,3")
                 .add("CUSTOM_PARAMETER_NAME", "bar")
                 .add("OPTIONAL_NON_NULL", "5")
-                .add("METHOD_WITH_OBJECT_RETURN_TYPE", "bar");
+                .add("METHOD_WITH_OBJECT_RETURN_TYPE", "bar")
+                .add("INT_IN_SUB_INTERFACE", "37")
+                .add("INT_IN_SUB_SUB_INTERFACE", "98")
+                .add("ANOTHER_STRING", "baz");
 
         valueParserFactory = new ValueParserFactory(new StringValueParser(), new IntegerValueParser(),
                 new ObjectAsStringValueParser());
@@ -195,11 +211,75 @@ public class ProxyInvocationHandlerTest {
                 valueParserFactory);
     }
 
+    @Test
+    public void subInterfaceMethodsAreAvailableUsingSubInterface() throws Throwable {
+        Method subInterfaceMethod = SubInterfaceConfig.class.getMethod("intInSubInterface");
+
+        ProxyInvocationHandler handler =
+            ProxyInvocationHandler.createInvocationHandler(SubInterfaceConfig.class, configSource, valueParserFactory);
+
+        Integer returnValue = (Integer) invoke(handler, subInterfaceMethod);
+        assertThat(returnValue, is(37));
+    }
+
+    @Test
+    public void superInterfaceMethodsAreAvailableUsingSubInterface() throws Throwable {
+        ProxyInvocationHandler handler =
+                ProxyInvocationHandler.createInvocationHandler(SubInterfaceConfig.class, configSource, valueParserFactory);
+
+        Integer returnValue = (Integer) invoke(handler, "getABoxedInteger");
+        assertThat(returnValue, is(10));
+    }
+
+    @Test
+    public void duplicatedMethodsAreAvailableUsingSubInterface() throws Throwable {
+        ProxyInvocationHandler handler =
+                ProxyInvocationHandler.createInvocationHandler(SubInterfaceConfig.class, configSource, valueParserFactory);
+
+        String returnValueUsingSuperMethod = (String) invoke(handler, ExampleConfig.class, "getAString");
+        assertThat(returnValueUsingSuperMethod, is("foo"));
+
+        String returnValueUsingSubMethod = (String) invoke(handler, SubInterfaceConfig.class, "getAString");
+        assertThat(returnValueUsingSubMethod, is("foo"));
+    }
+
+    @Test
+    public void subSubInterfaceMethodsAreAvailableUsingSubSubInterface() throws Throwable {
+        Method subSubInterfaceMethod = SubSubInterfaceConfig.class.getMethod("intInSubSubInterface");
+
+        ProxyInvocationHandler handler =
+                ProxyInvocationHandler.createInvocationHandler(SubSubInterfaceConfig.class, configSource, valueParserFactory);
+
+        Integer returnValue = (Integer) invoke(handler, subSubInterfaceMethod);
+        assertThat(returnValue, is(98));
+    }
+
+    @Test
+    public void superInterfaceMethodsAreAvailableUsingSubSubInterface() throws Throwable {
+        ProxyInvocationHandler handler =
+                ProxyInvocationHandler.createInvocationHandler(SubSubInterfaceConfig.class, configSource, valueParserFactory);
+
+        String returnValue = (String) invoke(handler, AnotherExampleConfig.class, "getAnotherString");
+        assertThat(returnValue, is("baz"));
+    }
+
     private Object invoke(String methodName) throws Throwable {
-        return invoke(ExampleConfig.class.getMethod(methodName));
+        return invoke(invocationHandler, methodName);
     }
 
     private Object invoke(Method method) throws Throwable {
-        return invocationHandler.invoke(null, method, new Object[] {});
+        return invoke(invocationHandler, method);
+    }
+
+    private Object invoke(ProxyInvocationHandler handler, String methodName) throws Throwable {
+        return invoke(handler, ExampleConfig.class, methodName);
+    }
+
+    private Object invoke(ProxyInvocationHandler handler, Class<?> configClass, String methodName) throws Throwable {
+        return invoke(handler, configClass.getMethod(methodName));
+    }
+
+    private Object invoke(ProxyInvocationHandler handler, Method method) throws Throwable {
+        return handler.invoke(null, method, new Object[] {});
     }
 }
