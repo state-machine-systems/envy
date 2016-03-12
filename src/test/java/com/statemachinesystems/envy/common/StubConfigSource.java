@@ -1,4 +1,4 @@
-package com.statemachinesystems.envy.example;
+package com.statemachinesystems.envy.common;
 
 import com.statemachinesystems.envy.ConfigSource;
 import com.statemachinesystems.envy.Parameter;
@@ -6,15 +6,15 @@ import com.statemachinesystems.envy.Parameter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DummyConfigSource implements ConfigSource {
+public class StubConfigSource implements ConfigSource {
 
     private final Map<Parameter, String> params;
 
-    public DummyConfigSource() {
+    public StubConfigSource() {
         this.params = new HashMap<Parameter, String>();
     }
 
-    public DummyConfigSource add(String parameter, String value) {
+    public StubConfigSource add(String parameter, String value) {
         params.put(new Parameter(parameter), value);
         return this;
     }

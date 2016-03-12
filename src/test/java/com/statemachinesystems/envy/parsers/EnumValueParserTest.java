@@ -1,6 +1,6 @@
 package com.statemachinesystems.envy.parsers;
 
-import com.statemachinesystems.envy.example.MyEnum;
+import com.statemachinesystems.envy.common.MyEnum;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;

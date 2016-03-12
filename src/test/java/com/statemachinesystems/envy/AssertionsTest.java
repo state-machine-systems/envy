@@ -6,9 +6,11 @@ import java.lang.reflect.Method;
 
 public class AssertionsTest {
 
-    private static enum ExampleEnum {}
+    @SuppressWarnings("unused")
+    private enum ExampleEnum {}
 
-    private static interface ExampleInterface {
+    @SuppressWarnings("unused")
+    private interface ExampleInterface {
         String methodWithNoParameters();
         String methodWithParameters(String parameter1, String parameter2);
     }

@@ -1,7 +1,7 @@
 package com.statemachinesystems.envy.integration;
 
 import com.statemachinesystems.envy.*;
-import com.statemachinesystems.envy.example.*;
+import com.statemachinesystems.envy.common.*;
 import org.junit.Before;
 import org.junit.Test;
 
