@@ -1,6 +1,6 @@
 package com.statemachinesystems.envy;
 
-import com.statemachinesystems.envy.example.DummyConfigSource;
+import com.statemachinesystems.envy.common.DummyConfigSource;
 
 import java.util.ArrayList;
 import java.util.List;

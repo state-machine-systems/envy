@@ -1,7 +1,7 @@
 package com.statemachinesystems.envy;
 
-import com.statemachinesystems.envy.example.MyClass;
-import com.statemachinesystems.envy.example.MyEnum;
+import com.statemachinesystems.envy.common.MyClass;
+import com.statemachinesystems.envy.common.MyEnum;
 import com.statemachinesystems.envy.parsers.BooleanValueParser;
 import org.junit.Test;
 

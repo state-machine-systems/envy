@@ -1,4 +1,4 @@
-package com.statemachinesystems.envy.example;
+package com.statemachinesystems.envy.common;
 
 import com.statemachinesystems.envy.ValueParser;
 

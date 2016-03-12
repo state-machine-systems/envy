@@ -1,6 +1,6 @@
 package com.statemachinesystems.envy;
 
-import com.statemachinesystems.envy.example.DummyConfigSource;
+import com.statemachinesystems.envy.common.DummyConfigSource;
 import com.statemachinesystems.envy.parsers.IntegerValueParser;
 import com.statemachinesystems.envy.parsers.ObjectAsStringValueParser;
 import com.statemachinesystems.envy.parsers.StringValueParser;

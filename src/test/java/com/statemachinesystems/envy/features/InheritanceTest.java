@@ -1,7 +1,7 @@
 package com.statemachinesystems.envy.features;
 
 import com.statemachinesystems.envy.FeatureTest;
-import com.statemachinesystems.envy.example.DummyConfigSource;
+import com.statemachinesystems.envy.common.DummyConfigSource;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
