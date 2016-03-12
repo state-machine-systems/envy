@@ -1,47 +1,34 @@
-package com.statemachinesystems.envy;
+package com.statemachinesystems.envy.features;
 
+import com.statemachinesystems.envy.ConfigSource;
+import com.statemachinesystems.envy.FeatureTest;
 import com.statemachinesystems.envy.example.DummyConfigSource;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.io.*;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.List;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
-public class EnvyTest {
+public class EqualsAndHashCodeTest extends FeatureTest {
 
+    @SuppressWarnings("unused")
     public interface Config {
-        String foo();
+        int foo();
         String bar();
     }
 
+    @SuppressWarnings("unused")
     public interface AnotherConfig {
-        String foo();
+        int foo();
         String bar();
     }
 
-    private ValueParserFactory valueParserFactory;
-    private DummyConfigSource configSource;
-
-    @Before
-    public void setUp() {
-        List<ValueParser<?>> valueParsers = new ArrayList<ValueParser<?>>(Envy.defaultValueParsers());
-        valueParserFactory = new ValueParserFactory(valueParsers);
-
-        configSource = new DummyConfigSource()
-                .add("foo", "foo")
-                .add("bar", "bar");
-    }
-
-    private Envy envy() {
-        return new Envy(valueParserFactory, configSource);
+    @Override
+    public DummyConfigSource configSource() {
+        return super.configSource().add("foo", "1").add("bar", "bar");
     }
 
     @Test
@@ -61,15 +48,11 @@ public class EnvyTest {
 
     @Test
     public void equalsMethodOnProxyReturnsFalseForUnequalInstances() {
-        DummyConfigSource configSource1 = new DummyConfigSource()
-                .add("foo", "foo1")
-                .add("bar", "bar");
-        DummyConfigSource configSource2 = new DummyConfigSource()
-                .add("foo", "foo2")
-                .add("bar", "bar");
+        ConfigSource configSource1 = configSource();
+        ConfigSource configSource2 = configSource().add("foo", "2");
 
-        Config config1 = new Envy(valueParserFactory, configSource1).proxy(Config.class);
-        Config config2 = new Envy(valueParserFactory, configSource2).proxy(Config.class);
+        Config config1 = envy(configSource1).proxy(Config.class);
+        Config config2 = envy(configSource2).proxy(Config.class);
 
         assertNotEquals(config1, config2);
         assertNotEquals(config2, config1);
@@ -124,28 +107,12 @@ public class EnvyTest {
 
     @Test
     public void hashCodeMethodReturnsDifferentResultsForUnequalProxyInstances() {
-        DummyConfigSource configSource1 = new DummyConfigSource()
-                .add("foo", "foo1")
-                .add("bar", "bar");
-        DummyConfigSource configSource2 = new DummyConfigSource()
-                .add("foo", "foo2")
-                .add("bar", "bar");
+        ConfigSource configSource1 = configSource();
+        ConfigSource configSource2 = configSource().add("foo", "2");
 
-        Config config1 = new Envy(valueParserFactory, configSource1).proxy(Config.class);
-        Config config2 = new Envy(valueParserFactory, configSource2).proxy(Config.class);
+        Config config1 = envy(configSource1).proxy(Config.class);
+        Config config2 = envy(configSource2).proxy(Config.class);
 
         assertNotEquals(config1.hashCode(), config2.hashCode());
-    }
-
-    @Test
-    public void proxyInstancesAreSerializable() throws IOException, ClassNotFoundException {
-        Config config = envy().proxy(Config.class);
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        new ObjectOutputStream(out).writeObject(config);
-
-        Object deserialized = new ObjectInputStream(new ByteArrayInputStream(out.toByteArray())).readObject();
-        assertThat(deserialized, instanceOf(Config.class));
-        assertThat((Config) deserialized, is(config));
     }
 }

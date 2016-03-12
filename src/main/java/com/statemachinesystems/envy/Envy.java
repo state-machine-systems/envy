@@ -4,10 +4,7 @@ import com.statemachinesystems.envy.parsers.*;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.statemachinesystems.envy.Assertions.assertInterface;
 
@@ -68,8 +65,7 @@ public class Envy {
         return Collections.unmodifiableList(valueParsers);
     }
 
-    private final ValueParserFactory valueParserFactory;
-    private final ConfigSource configSource;
+    private final ConfigExtractor configExtractor;
 
     /**
      * Creates a new {@link com.statemachinesystems.envy.Envy} instance with the given
@@ -79,8 +75,7 @@ public class Envy {
      * @param configSource        the {@link com.statemachinesystems.envy.ConfigSource} to use
      */
     public Envy(ValueParserFactory valueParserFactory, ConfigSource configSource) {
-        this.valueParserFactory = valueParserFactory;
-        this.configSource = configSource;
+        this.configExtractor = new ConfigExtractor(valueParserFactory, configSource);
     }
 
     /**
@@ -93,8 +88,8 @@ public class Envy {
     public <T> T proxy(Class<T> configClass) {
         assertInterface(configClass);
 
-        InvocationHandler invocationHandler = ProxyInvocationHandler.createInvocationHandler(
-                        configClass, configSource, valueParserFactory);
+        Map<String, Object> values = configExtractor.extractValuesByMethodName(configClass);
+        InvocationHandler invocationHandler = new ProxyInvocationHandler(configClass, values);
 
         ClassLoader classLoader = configClass.getClassLoader();
         Class<?>[] proxyInterfaces = new Class<?>[] { configClass };
