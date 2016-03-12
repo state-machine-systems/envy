@@ -1,5 +1,9 @@
-package com.statemachinesystems.envy;
+package com.statemachinesystems.envy.common;
 
+import com.statemachinesystems.envy.ConfigSource;
+import com.statemachinesystems.envy.Envy;
+import com.statemachinesystems.envy.ValueParser;
+import com.statemachinesystems.envy.ValueParserFactory;
 import com.statemachinesystems.envy.common.DummyConfigSource;
 
 import java.util.ArrayList;

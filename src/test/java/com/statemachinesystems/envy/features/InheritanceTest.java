@@ -1,6 +1,6 @@
 package com.statemachinesystems.envy.features;
 
-import com.statemachinesystems.envy.FeatureTest;
+import com.statemachinesystems.envy.common.FeatureTest;
 import com.statemachinesystems.envy.common.DummyConfigSource;
 import org.junit.Test;
 
