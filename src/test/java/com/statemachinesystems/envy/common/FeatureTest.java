@@ -4,7 +4,6 @@ import com.statemachinesystems.envy.ConfigSource;
 import com.statemachinesystems.envy.Envy;
 import com.statemachinesystems.envy.ValueParser;
 import com.statemachinesystems.envy.ValueParserFactory;
-import com.statemachinesystems.envy.common.DummyConfigSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +31,7 @@ public abstract class FeatureTest {
         return new ValueParserFactory(valueParsers);
     }
 
-    protected DummyConfigSource configSource() {
-        return new DummyConfigSource();
+    protected StubConfigSource configSource() {
+        return new StubConfigSource();
     }
 }

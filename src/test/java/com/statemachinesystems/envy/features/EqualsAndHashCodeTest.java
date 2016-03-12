@@ -2,7 +2,7 @@ package com.statemachinesystems.envy.features;
 
 import com.statemachinesystems.envy.ConfigSource;
 import com.statemachinesystems.envy.common.FeatureTest;
-import com.statemachinesystems.envy.common.DummyConfigSource;
+import com.statemachinesystems.envy.common.StubConfigSource;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationHandler;
@@ -27,7 +27,7 @@ public class EqualsAndHashCodeTest extends FeatureTest {
     }
 
     @Override
-    public DummyConfigSource configSource() {
+    public StubConfigSource configSource() {
         return super.configSource().add("foo", "1").add("bar", "bar");
     }
 

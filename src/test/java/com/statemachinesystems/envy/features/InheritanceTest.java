@@ -1,7 +1,7 @@
 package com.statemachinesystems.envy.features;
 
 import com.statemachinesystems.envy.common.FeatureTest;
-import com.statemachinesystems.envy.common.DummyConfigSource;
+import com.statemachinesystems.envy.common.StubConfigSource;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -28,7 +28,7 @@ public class InheritanceTest extends FeatureTest {
     }
 
     @Override
-    protected DummyConfigSource configSource() {
+    protected StubConfigSource configSource() {
         return super.configSource()
                 .add("a1", "a string value")
                 .add("a2", "123")

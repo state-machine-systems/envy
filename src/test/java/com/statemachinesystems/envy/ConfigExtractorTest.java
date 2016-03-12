@@ -1,6 +1,6 @@
 package com.statemachinesystems.envy;
 
-import com.statemachinesystems.envy.common.DummyConfigSource;
+import com.statemachinesystems.envy.common.StubConfigSource;
 import com.statemachinesystems.envy.parsers.IntegerValueParser;
 import com.statemachinesystems.envy.parsers.ObjectAsStringValueParser;
 import com.statemachinesystems.envy.parsers.StringValueParser;
@@ -51,13 +51,13 @@ public class ConfigExtractorTest {
         void methodWithVoidReturnType();
     }
 
-    private DummyConfigSource configSource;
+    private StubConfigSource configSource;
     private ValueParserFactory valueParserFactory;
     private ConfigExtractor configExtractor;
 
     @Before
     public void setUp() {
-        configSource = new DummyConfigSource()
+        configSource = new StubConfigSource()
                 .add("A_STRING", "foo")
                 .add("A_BOXED_INTEGER", "10")
                 .add("A_PRIMITIVE_INTEGER", "15")
@@ -123,7 +123,7 @@ public class ConfigExtractorTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void rejectsMissingParameter() {
-        ConfigSource emptyConfigSource = new DummyConfigSource();
+        ConfigSource emptyConfigSource = new StubConfigSource();
         ConfigExtractor configExtractor = new ConfigExtractor(valueParserFactory, emptyConfigSource);
         configExtractor.extractValuesByMethodName(ExampleConfig.class);
     }
@@ -142,14 +142,14 @@ public class ConfigExtractorTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void overriddenObjectMethodsAreRejected() {
-        DummyConfigSource configSource = new DummyConfigSource().add("to.string", "bad");
+        StubConfigSource configSource = new StubConfigSource().add("to.string", "bad");
         ConfigExtractor configExtractor = new ConfigExtractor(valueParserFactory, configSource);
         configExtractor.extractValuesByMethodName(BadConfigWithOverriddenObjectMethod.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void voidReturnTypesAreRejected() {
-        DummyConfigSource configSource = new DummyConfigSource().add("method.with.void.return.type", "bad");
+        StubConfigSource configSource = new StubConfigSource().add("method.with.void.return.type", "bad");
         ValueParserFactory valueParserFactory = new ValueParserFactory(new ValueParser<Void>() {
             @Override
             public Void parseValue(String value) {
