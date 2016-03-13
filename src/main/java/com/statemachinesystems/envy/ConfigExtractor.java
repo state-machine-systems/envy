@@ -107,9 +107,7 @@ public class ConfigExtractor {
             rawValue = getDefaultValue(method);
         }
         if (rawValue == null && isMandatory(method)) {
-            throw new IllegalArgumentException(
-                    String.format("Missing configuration value for %s.%s/%s",
-                            configClass.getSimpleName(), method.getName(), parameter));
+            throw new MissingParameterValueException(configClass, method, parameter);
         }
         return rawValue;
     }
