@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import static com.statemachinesystems.envy.Assertions.*;
-import static java.util.Arrays.asList;
 
 /**
  * Extracts configuration values indexed by method name, as used by
@@ -27,20 +26,35 @@ public class ConfigExtractor {
                 || method.getAnnotation(Optional.class) == null;
     }
 
-    private static List<Method> getMethods(Class<?> configClass) {
-        List<Method> methods = new ArrayList<Method>();
-        for (Class<?> superInterface : configClass.getInterfaces()) {
-            methods.addAll(getMethods(superInterface));
-        }
-        methods.addAll(asList(configClass.getDeclaredMethods()));
-        return methods;
+    private static Collection<Method> getMethods(Class<?> configClass) {
+        return getMethodsByName(configClass).values();
     }
 
-    private static Parameter getParameter(Method method) {
+    private static Map<String, Method> getMethodsByName(Class<?> configClass) {
+        Map<String, Method> methodsByName = new LinkedHashMap<String, Method>();
+        for (Class<?> superInterface : configClass.getInterfaces()) {
+            methodsByName.putAll(getMethodsByName(superInterface));
+        }
+        for (Method method : configClass.getDeclaredMethods()) {
+            methodsByName.put(method.getName(), method);
+        }
+        return methodsByName;
+    }
+
+    private static Parameter getParameter(Method method, Parameter prefix) {
         Name customParameterName = method.getAnnotation(Name.class);
-        return customParameterName != null
+        Parameter parameter = customParameterName != null
                 ? new Parameter(customParameterName.value())
                 : Parameter.fromMethodName(method.getName());
+
+        return prefix != null
+                ? prefix.join(parameter)
+                : parameter;
+    }
+
+    private static Parameter getPrefix(Class<?> configClass) {
+        Prefix prefix = configClass.getAnnotation(Prefix.class);
+        return prefix != null ? new Parameter(prefix.value()) : null;
     }
 
     private final ValueParserFactory valueParserFactory;
@@ -69,12 +83,14 @@ public class ConfigExtractor {
 
         Map<String, Object> values = new LinkedHashMap<String, Object>();
 
+        Parameter prefix = getPrefix(configClass);
+
         for (Method method : getMethods(configClass)) {
             assertMethodWithNoParameters(method);
             assertNotObjectMethod(method);
             assertMethodWithNonVoidReturnType(method);
 
-            Parameter parameter = getParameter(method);
+            Parameter parameter = getParameter(method, prefix);
             String rawValue = getRawValue(parameter, configClass, method);
             Object parsedValue = parseValue(rawValue, configClass, method);
 
@@ -92,8 +108,8 @@ public class ConfigExtractor {
         }
         if (rawValue == null && isMandatory(method)) {
             throw new IllegalArgumentException(
-                    String.format("Missing configuration value for %s.%s",
-                            configClass.getSimpleName(), method.getName()));
+                    String.format("Missing configuration value for %s.%s/%s",
+                            configClass.getSimpleName(), method.getName(), parameter));
         }
         return rawValue;
     }

@@ -184,4 +184,11 @@ public class ParameterTest {
     public void rejectsLeadingUnderscoreInName() {
         new Parameter("_BAR");
     }
+
+    @Test
+    public void joinsTwoParameters() {
+        Parameter prefix = new Parameter("prefix");
+        Parameter suffix = new Parameter("suffix");
+        assertThat(prefix.join(suffix), equalTo(new Parameter("prefix.suffix")));
+    }
 }

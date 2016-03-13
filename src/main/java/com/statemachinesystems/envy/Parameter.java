@@ -69,6 +69,11 @@ public class Parameter {
         return name.toLowerCase().replaceAll("_", ".");
     }
 
+    public Parameter join(Parameter other) {
+        return new Parameter(
+                String.format("%s_%s", this.asEnvironmentVariableName(), other.asEnvironmentVariableName()));
+    }
+
     @Override
     public String toString() {
         return this.asEnvironmentVariableName();
