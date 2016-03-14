@@ -2,11 +2,7 @@ package com.statemachinesystems.envy;
 
 import com.statemachinesystems.envy.parsers.*;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
 import java.util.*;
-
-import static com.statemachinesystems.envy.Assertions.assertInterface;
 
 /**
  * Top-level fa&ccedil;ade for creating configuration objects.
@@ -86,17 +82,7 @@ public class Envy {
      * @return             a configuration object that implements the interface
      */
     public <T> T proxy(Class<T> configClass) {
-        assertInterface(configClass);
-
         Map<String, Object> values = configExtractor.extractValuesByMethodName(configClass);
-        InvocationHandler invocationHandler = new ProxyInvocationHandler(configClass, values);
-
-        ClassLoader classLoader = configClass.getClassLoader();
-        Class<?>[] proxyInterfaces = new Class<?>[] { configClass };
-
-        @SuppressWarnings("unchecked")
-        T proxyInstance = (T) Proxy.newProxyInstance(classLoader, proxyInterfaces, invocationHandler);
-
-        return proxyInstance;
+        return ProxyInvocationHandler.proxy(configClass, values);
     }
 }
