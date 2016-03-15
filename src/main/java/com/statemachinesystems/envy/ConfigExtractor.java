@@ -1,7 +1,10 @@
 package com.statemachinesystems.envy;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static com.statemachinesystems.envy.Assertions.*;
 
@@ -19,6 +22,10 @@ public class ConfigExtractor {
         return defaultAnnotation != null
                 ? defaultAnnotation.value()
                 : null;
+    }
+
+    private static boolean hasDefaultAnnotation(Method method) {
+        return method.getAnnotation(Default.class) != null;
     }
 
     private static boolean isMandatory(Method method) {
@@ -80,10 +87,11 @@ public class ConfigExtractor {
      * @return  a populated map of method names to configuration values
      */
     public Map<String, Object> extractValuesByMethodName(Class<?> configClass) {
+        return extractValuesByMethodName(configClass, getPrefix(configClass));
+    }
 
+    private Map<String, Object> extractValuesByMethodName(Class<?> configClass, Parameter prefix) {
         Map<String, Object> values = new LinkedHashMap<String, Object>();
-
-        Parameter prefix = getPrefix(configClass);
 
         for (Method method : getMethods(configClass)) {
             assertMethodWithNoParameters(method);
@@ -91,41 +99,26 @@ public class ConfigExtractor {
             assertMethodWithNonVoidReturnType(method);
 
             Parameter parameter = getParameter(method, prefix);
-            String rawValue = getRawValue(parameter, configClass, method);
-            Object parsedValue = parseValue(rawValue, configClass, method);
-
-            values.put(method.getName(), parsedValue);
+            Object value = extractValue(configClass, method, parameter);
+            values.put(method.getName(), value);
         }
 
         return Collections.unmodifiableMap(values);
     }
 
-    private String getRawValue(Parameter parameter, Class<?> configClass, Method method) {
-
-        String rawValue = configSource.getValue(parameter);
-        if (rawValue == null) {
-            rawValue = getDefaultValue(method);
+    private Object extractValue(Class<?> configClass, Method method, Parameter parameter) {
+        try {
+            ValueParser<?> valueParser = getValueParser(configClass, method);
+            String rawValue = getRawValue(parameter, configClass, method);
+            return parseValue(valueParser, rawValue, method);
+        } catch (UnsupportedTypeException unsupportedType) {
+            Class<?> returnType = method.getReturnType();
+            if (returnType.isInterface()) {
+                return extractNestedValue(method, parameter, returnType);
+            } else {
+                throw unsupportedType;
+            }
         }
-        if (rawValue == null && isMandatory(method)) {
-            throw new IllegalArgumentException(
-                    String.format("Missing configuration value for %s.%s/%s",
-                            configClass.getSimpleName(), method.getName(), parameter));
-        }
-        return rawValue;
-    }
-
-    private Object parseValue(String rawValue, Class<?> configClass, Method method) {
-        if (rawValue == null) {
-            return null;
-        }
-
-        ValueParser<?> valueParser = getValueParser(configClass, method);
-        Object parsedValue = valueParser.parseValue(rawValue);
-
-        return Conversions.isPrimitiveArray(method.getReturnType())
-                ? Conversions.boxedArrayToPrimitiveArray(parsedValue)
-                : parsedValue;
-
     }
 
     private ValueParser<?> getValueParser(Class<?> configClass, Method method) {
@@ -135,6 +128,45 @@ public class ConfigExtractor {
             throw new UnsupportedTypeException(
                     String.format("%s (%s.%s)",
                             e.getMessage(), configClass.getSimpleName(), method.getName()));
+        }
+    }
+
+    private String getRawValue(Parameter parameter, Class<?> configClass, Method method) {
+
+        String rawValue = configSource.getValue(parameter);
+        if (rawValue == null) {
+            rawValue = getDefaultValue(method);
+        }
+        if (rawValue == null && isMandatory(method)) {
+            throw new MissingParameterValueException(configClass, method, parameter);
+        }
+        return rawValue;
+    }
+
+    private Object parseValue(ValueParser<?> valueParser, String rawValue, Method method) {
+        if (rawValue == null) {
+            return null;
+        }
+
+        Object parsedValue = valueParser.parseValue(rawValue);
+
+        return Conversions.isPrimitiveArray(method.getReturnType())
+                ? Conversions.boxedArrayToPrimitiveArray(parsedValue)
+                : parsedValue;
+    }
+
+    private Object extractNestedValue(Method method, Parameter parameter, Class<?> returnType) {
+        if (hasDefaultAnnotation(method)) {
+            throw new IllegalArgumentException("Default values are not applicable to nested configuration");
+        }
+        try {
+            return ProxyInvocationHandler.proxy(returnType, extractValuesByMethodName(returnType, parameter));
+        } catch (MissingParameterValueException missingParameterValue) {
+            if (isMandatory(method)) {
+                throw missingParameterValue;
+            } else {
+                return null;
+            }
         }
     }
 }

@@ -121,7 +121,7 @@ public class ConfigExtractorTest {
         assertNull(getValue("optionalNull"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = MissingParameterValueException.class)
     public void rejectsMissingParameter() {
         ConfigSource emptyConfigSource = new StubConfigSource();
         ConfigExtractor configExtractor = new ConfigExtractor(valueParserFactory, emptyConfigSource);
@@ -135,7 +135,7 @@ public class ConfigExtractorTest {
         configExtractor.extractValuesByMethodName(ExampleConfig.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = MissingParameterValueException.class)
     public void rejectsOptionalAnnotationWithPrimitiveReturnType() {
         configExtractor.extractValuesByMethodName(BadConfigCombiningOptionalWithPrimitive.class);
     }

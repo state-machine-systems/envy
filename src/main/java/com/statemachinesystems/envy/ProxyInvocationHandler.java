@@ -7,12 +7,36 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Map;
 
+import static com.statemachinesystems.envy.Assertions.assertInterface;
+
 /**
  * Handles method calls on proxied configuration interfaces.
  *
  * @see java.lang.reflect.InvocationHandler
  */
 public class ProxyInvocationHandler implements InvocationHandler, Serializable {
+
+    /**
+     * Builds a proxy configuration object from the given interface and configuration values.
+     *
+     * @param configClass  the configuration interface to be proxied
+     * @param values       map of configuration values indexed by method name
+     * @param <T>          the type of the configuration interface
+     * @return             a configuration object that implements the interface
+     */
+    public static <T> T proxy(Class<T> configClass, Map<String, Object> values) {
+        assertInterface(configClass);
+
+        InvocationHandler invocationHandler = new ProxyInvocationHandler(configClass, values);
+
+        ClassLoader classLoader = configClass.getClassLoader();
+        Class<?>[] proxyInterfaces = new Class<?>[] { configClass };
+
+        @SuppressWarnings("unchecked")
+        T proxyInstance = (T) Proxy.newProxyInstance(classLoader, proxyInterfaces, invocationHandler);
+
+        return proxyInstance;
+    }
 
     private static Method getObjectMethod(String name, Class<?>... argumentTypes) {
         try {
@@ -49,6 +73,13 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
     private final Class<?> configClass;
     private final Map<String, Object> values;
 
+    /**
+     * Creates a {@link com.statemachinesystems.envy.ProxyInvocationHandler} instance using the given interface
+     * and configuration values.
+     *
+     * @param configClass  the configuration interface to be proxied
+     * @param values       map of configuration values indexed by method name
+     */
     public ProxyInvocationHandler(Class<?> configClass, Map<String, Object> values) {
         this.configClass = configClass;
         this.values = values;
