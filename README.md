@@ -26,15 +26,20 @@ This also works for JVM system properties, using a lower-case dotted naming conv
 which would be `api.key` and `api.secret` in the above example. When an environment variable and a
 system property are both defined with equivalent names, the system property takes precedence.
 
+Also, you don't have to use bean-style method names - the following version would work in exactly the same way:
+
+    interface MyConfig {
+        String apiKey();
+        String apiSecret();
+    }
+
 ### Getting started
 
 Envy's in the Maven Central repo, so just add the
 [latest version](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.statemachinesystems%22%20AND%20a%3A%22envy%22)
 as a dependency in your Maven/SBT/Gradle/whatever build.
 
-## Features
-
-### Default values
+### Default values
 
 Envy treats all parameters as mandatory - nulls are bad.
 Instead, you can provide a default value for optional parameters:
@@ -67,6 +72,53 @@ Long and/or awkward names can be overridden using the `@Name` annotation:
     interface BarConfig {
         @Name("com.foo.extremely.long.property.name.for.thing")
         String getThing();
+    }
+
+To apply a prefix to all names in a configuration interface, use the `@Prefix` annotation:
+
+    import com.statemachinesystems.envy.Prefix;
+
+    @Prefix("baz.config")
+    interface BazConfig {
+        /**
+         * Configured by BAZ_CONFIG_HTTP_PORT
+         */
+        int getHttpPort();
+    }
+
+### Inheritance
+
+Interface inheritance is supported, so you can factor out common parameters in more complex configurations.
+
+Annotations on methods (`@Name`, `@Optional` and `@Default`) are inherited,
+but can be overridden (or removed entirely) by redeclaring the method in a sub-interface. `@Prefix` annotations
+are *not* inherited.
+
+
+### Nesting
+
+Configuration interfaces can be nested, which allows reuse of repeated structures. Here's an example using both
+inheritance and nesting:
+
+    interface Credentials {
+        String username();
+        String password();
+    }
+
+    interface ConnectionConfig extends Credentials {
+        java.net.InetSocketAddress address();
+    }
+
+    interface AppConfig {
+        /**
+         * Configured by DATABASE_ADDRESS, DATABASE_USERNAME and DATABASE_PASSWORD
+         */
+        ConnectionConfig database();
+
+        /**
+         * Configured by MESSAGE_BROKER_ADDRESS, MESSAGE_BROKER_USERNAME and MESSAGE_BROKER_PASSWORD
+         */
+        ConnectionConfig messageBroker();
     }
 
 ### Supported data types
@@ -110,4 +162,4 @@ Then, when instantiating your configuration, pass along an instance of your pars
     MyConfig config = Envy.configure(MyConfig.class, new MyCustomTypeParser());
 
 
-&copy; 2015 State Machine Systems Ltd. [Apache Licence, Version 2.0]( http://www.apache.org/licenses/LICENSE-2.0)
+&copy; 2016 State Machine Systems Ltd. [Apache Licence, Version 2.0]( http://www.apache.org/licenses/LICENSE-2.0)
