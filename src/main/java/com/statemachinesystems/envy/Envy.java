@@ -18,12 +18,29 @@ public class Envy {
      * @return                    a configuration object that implements the given interface
      */
     public static <T> T configure(Class<T> configClass, ValueParser<?>... customValueParsers) {
+        return configure(configClass, new DefaultConfigSource(), customValueParsers);
+    }
+
+    /**
+     * Create a configuration object from the given interface and {@link com.statemachinesystems.envy.ConfigSource},
+     * optionally with custom value parsers.
+     *
+     * @param configClass         the configuration interface from which to create the object
+     * @param configSource        the {@link com.statemachinesystems.envy.ConfigSource} to use
+     * @param customValueParsers  additional value parsers to be used
+     * @param <T>                 the type of the configuration interface
+     * @return                    a configuration object that implements the given interface
+
+     */
+    public static <T> T configure(Class<T> configClass, ConfigSource configSource,
+            ValueParser<?>... customValueParsers) {
+
         List<ValueParser<?>> valueParsers = new ArrayList<ValueParser<?>>();
         valueParsers.addAll(defaultValueParsers());
         valueParsers.addAll(Arrays.asList(customValueParsers));
         ValueParserFactory valueParserFactory = new ValueParserFactory(valueParsers);
 
-        return new Envy(valueParserFactory, new DefaultConfigSource())
+        return new Envy(valueParserFactory, configSource)
                 .proxy(configClass);
     }
 
