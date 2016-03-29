@@ -90,8 +90,11 @@ public class Envy {
      * @return  a default {@link com.statemachinesystems.envy.ConfigSource} implementation
      */
     public static ConfigSource defaultConfigSource() {
-        return new DelegatingConfigSource(new SystemPropertyConfigSource(), new EnvironmentVariableConfigSource());
+        return DEFAULT_CONFIG_SOURCE;
     }
+
+    private static final ConfigSource DEFAULT_CONFIG_SOURCE =
+            new DelegatingConfigSource(new SystemPropertyConfigSource(), new EnvironmentVariableConfigSource());
 
     private final ConfigExtractor configExtractor;
 
