@@ -11,6 +11,12 @@ public class DelegatingConfigSource implements ConfigSource {
 
     private final ConfigSource[] sources;
 
+    /**
+     * Creates a {@link com.statemachinesystems.envy.sources.DelegatingConfigSource} using
+     * the given component sources in preference order.
+     *
+     * @param sources  component {@link com.statemachinesystems.envy.ConfigSource}s in preference order
+     */
     public DelegatingConfigSource(ConfigSource... sources) {
         this.sources = sources;
     }
