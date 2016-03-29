@@ -1,6 +1,7 @@
 package com.statemachinesystems.envy;
 
 import com.statemachinesystems.envy.parsers.*;
+import com.statemachinesystems.envy.sources.*;
 
 import java.util.*;
 
@@ -18,7 +19,7 @@ public class Envy {
      * @return                    a configuration object that implements the given interface
      */
     public static <T> T configure(Class<T> configClass, ValueParser<?>... customValueParsers) {
-        return configure(configClass, new DefaultConfigSource(), customValueParsers);
+        return configure(configClass, defaultConfigSource(), customValueParsers);
     }
 
     /**
@@ -77,6 +78,23 @@ public class Envy {
 
         return Collections.unmodifiableList(valueParsers);
     }
+
+    /**
+     * Provides a default {@link com.statemachinesystems.envy.ConfigSource} implementation
+     * that retrieves configuration values from either JVM system properties or
+     * environment variables.
+     *
+     * System properties override environment variables with
+     * equivalent names.
+     *
+     * @return  a default {@link com.statemachinesystems.envy.ConfigSource} implementation
+     */
+    public static ConfigSource defaultConfigSource() {
+        return DEFAULT_CONFIG_SOURCE;
+    }
+
+    private static final ConfigSource DEFAULT_CONFIG_SOURCE =
+            new DelegatingConfigSource(new SystemPropertyConfigSource(), new EnvironmentVariableConfigSource());
 
     private final ConfigExtractor configExtractor;
 
