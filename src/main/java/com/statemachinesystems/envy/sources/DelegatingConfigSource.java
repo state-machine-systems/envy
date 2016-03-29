@@ -1,4 +1,7 @@
-package com.statemachinesystems.envy;
+package com.statemachinesystems.envy.sources;
+
+import com.statemachinesystems.envy.ConfigSource;
+import com.statemachinesystems.envy.Parameter;
 
 /**
  * A composite {@link com.statemachinesystems.envy.ConfigSource} implementation
