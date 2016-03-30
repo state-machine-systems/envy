@@ -107,27 +107,18 @@ public class ConfigExtractor {
     }
 
     private Object extractValue(Class<?> configClass, Method method, Parameter parameter) {
-        try {
-            ValueParser<?> valueParser = getValueParser(configClass, method);
+        Class<?> returnType = method.getReturnType();
+        ValueParser<?> valueParser = valueParserFactory.getValueParser(returnType);
+
+        if (valueParser != null) {
             String rawValue = getRawValue(parameter, configClass, method);
             return parseValue(valueParser, rawValue, method);
-        } catch (UnsupportedTypeException unsupportedType) {
-            Class<?> returnType = method.getReturnType();
-            if (returnType.isInterface()) {
-                return extractNestedValue(method, parameter, returnType);
-            } else {
-                throw unsupportedType;
-            }
-        }
-    }
-
-    private ValueParser<?> getValueParser(Class<?> configClass, Method method) {
-        try {
-            return valueParserFactory.getValueParser(method.getReturnType());
-        } catch (UnsupportedTypeException e) {
+        } else if (returnType.isInterface()) {
+            return extractNestedValue(method, parameter, method.getReturnType());
+        } else {
             throw new UnsupportedTypeException(
-                    String.format("%s (%s.%s)",
-                            e.getMessage(), configClass.getSimpleName(), method.getName()));
+                    String.format("Cannot parse value of class %s (%s.%s)",
+                            returnType, configClass.getSimpleName(), method.getName()));
         }
     }
 
