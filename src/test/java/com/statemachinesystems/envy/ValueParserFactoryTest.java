@@ -9,6 +9,7 @@ import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNull;
 
 public class ValueParserFactoryTest {
 
@@ -42,9 +43,9 @@ public class ValueParserFactoryTest {
         assertEquals(expected, actual);
     }
 
-    @Test(expected = UnsupportedTypeException.class)
-    public void rejectsUnsupportedType() {
-        valueParserFactory.getValueParser(Random.class);
+    @Test
+    public void returnsNullForUnsupportedType() {
+        assertNull(valueParserFactory.getValueParser(Random.class));
     }
 
     @Test
@@ -75,9 +76,9 @@ public class ValueParserFactoryTest {
         assertArrayEquals(expected, (MyClass[]) parser.parseValue("foo,bar"));
     }
 
-    @Test(expected = UnsupportedTypeException.class)
-    public void rejectsArrayOfUnsupportedType() {
-        valueParserFactory.getValueParser(Random[].class);
+    @Test
+    public void returnsNullForArrayOfUnsupportedType() {
+        assertNull(valueParserFactory.getValueParser(Random[].class));
     }
 
     @Test(expected = UnsupportedTypeException.class)

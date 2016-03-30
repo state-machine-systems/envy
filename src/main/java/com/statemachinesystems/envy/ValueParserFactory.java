@@ -35,8 +35,11 @@ public class ValueParserFactory {
     /**
      * Creates a {@link com.statemachinesystems.envy.ValueParser} for the given class.
      *
+     * Returns null if no applicable parser is available.
+     *
      * @param propertyClass  the class for which to create the {@link com.statemachinesystems.envy.ValueParser}
-     * @return               a {@link com.statemachinesystems.envy.ValueParser} for the given class
+     * @return               a {@link com.statemachinesystems.envy.ValueParser} for the given class, or null if
+     *                       no applicable parser is available
      */
     public ValueParser<?> getValueParser(Class<?> propertyClass) {
         return getValueParser(propertyClass, true);
@@ -55,29 +58,26 @@ public class ValueParserFactory {
             }
             return arrayValueParser(propertyClass);
         } else {
-            parser = ReflectionValueParser.parserOrNull(propertyClass);
-            if (parser == null) {
-                throw new UnsupportedTypeException(
-                        String.format("Cannot parse value of class %s", propertyClass.getCanonicalName()));
-            }
-            return parser;
+            return ReflectionValueParser.parserOrNull(propertyClass);
         }
     }
 
     private ValueParser<?> enumValueParser(Class<?> propertyClass) {
         @SuppressWarnings("unchecked")
         ValueParser<?> enumValueParser = new EnumValueParser(propertyClass);
-
         return enumValueParser;
     }
 
     private ValueParser<?> arrayValueParser(Class<?> propertyClass) {
         Class<?> componentType = propertyClass.getComponentType();
 
-        @SuppressWarnings("unchecked")
-        ValueParser<?> arrayValueParser =
-                new ArrayValueParser(getValueParser(componentType, false));
+        ValueParser<?> componentParser = getValueParser(componentType, false);
+        if (componentParser == null) {
+            return null;
+        }
 
+        @SuppressWarnings("unchecked")
+        ValueParser<?> arrayValueParser = new ArrayValueParser(componentParser);
         return arrayValueParser;
     }
 }
