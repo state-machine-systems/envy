@@ -31,6 +31,11 @@ public class AssertionsTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void rejectsNonArrayClass() {
+        Assertions.assertArray(Integer.class);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void rejectsNonInterfaceClass() {
         Assertions.assertInterface(ExampleEnum.class);
     }

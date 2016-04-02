@@ -20,7 +20,7 @@ public class Parameter {
         return fromPropertyName(name.substring(prefixLength));
     }
 
-    public static Parameter fromPropertyName(String name) {
+    private static Parameter fromPropertyName(String name) {
         PropertyNameParser parser = new PropertyNameParser(name);
 
         StringBuilder buf = new StringBuilder();
