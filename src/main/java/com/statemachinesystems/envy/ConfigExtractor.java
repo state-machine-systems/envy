@@ -1,6 +1,8 @@
 package com.statemachinesystems.envy;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -29,8 +31,8 @@ public class ConfigExtractor {
     }
 
     private static boolean isMandatory(Method method) {
-        return method.getReturnType().isPrimitive()
-                || method.getAnnotation(Optional.class) == null;
+        return (method.getReturnType().isPrimitive() || method.getAnnotation(Optional.class) == null)
+                && ! OptionalWrapper.isWrapperType(method.getReturnType());
     }
 
     private static Collection<Method> getMethods(Class<?> configClass) {
@@ -99,26 +101,30 @@ public class ConfigExtractor {
             assertMethodWithNonVoidReturnType(method);
 
             Parameter parameter = getParameter(method, prefix);
-            Object value = extractValue(configClass, method, parameter);
+            Object value = extractValue(configClass, method.getReturnType(), method, parameter);
             values.put(method.getName(), value);
         }
 
         return Collections.unmodifiableMap(values);
     }
 
-    private Object extractValue(Class<?> configClass, Method method, Parameter parameter) {
-        Class<?> returnType = method.getReturnType();
-        ValueParser<?> valueParser = valueParserFactory.getValueParser(returnType);
+    private Object extractValue(Class<?> configClass, Class<?> propertyClass, Method method, Parameter parameter) {
+        OptionalWrapper wrapper = OptionalWrapper.wrapperOrNull(propertyClass, method);
+        if (wrapper != null) {
+            return wrapper.wrap(extractValue(configClass, wrapper.getPropertyClass(), method, parameter));
+        }
+
+        ValueParser<?> valueParser = valueParserFactory.getValueParser(propertyClass);
 
         if (valueParser != null) {
             String rawValue = getRawValue(parameter, configClass, method);
-            return parseValue(valueParser, rawValue, method);
-        } else if (returnType.isInterface()) {
-            return extractNestedValue(method, parameter, method.getReturnType());
+            return parseValue(valueParser, rawValue, propertyClass);
+        } else if (propertyClass.isInterface()) {
+            return extractNestedValue(method, parameter, propertyClass);
         } else {
             throw new UnsupportedTypeException(
                     String.format("Cannot parse value of class %s (%s.%s)",
-                            returnType, configClass.getSimpleName(), method.getName()));
+                            propertyClass.getName(), configClass.getSimpleName(), method.getName()));
         }
     }
 
@@ -134,24 +140,24 @@ public class ConfigExtractor {
         return rawValue;
     }
 
-    private Object parseValue(ValueParser<?> valueParser, String rawValue, Method method) {
+    private Object parseValue(ValueParser<?> valueParser, String rawValue, Class<?> propertyClass) {
         if (rawValue == null) {
             return null;
         }
 
         Object parsedValue = valueParser.parseValue(rawValue);
 
-        return Conversions.isPrimitiveArray(method.getReturnType())
+        return Conversions.isPrimitiveArray(propertyClass)
                 ? Conversions.boxedArrayToPrimitiveArray(parsedValue)
                 : parsedValue;
     }
 
-    private Object extractNestedValue(Method method, Parameter parameter, Class<?> returnType) {
+    private Object extractNestedValue(Method method, Parameter parameter, Class<?> propertyClass) {
         if (hasDefaultAnnotation(method)) {
             throw new IllegalArgumentException("Default values are not applicable to nested configuration");
         }
         try {
-            return ProxyInvocationHandler.proxy(returnType, extractValuesByMethodName(returnType, parameter));
+            return ProxyInvocationHandler.proxy(propertyClass, extractValuesByMethodName(propertyClass, parameter));
         } catch (MissingParameterValueException missingParameterValue) {
             if (isMandatory(method)) {
                 throw missingParameterValue;
