@@ -1,2 +1,7 @@
 language: java
-script: mvn verify
+script: mvn help:active-profiles verify -Dmaven.javadoc.skip=true
+jdk:
+  - openjdk6
+  - openjdk7
+  - oraclejdk7
+  - oraclejdk8
