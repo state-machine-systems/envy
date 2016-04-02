@@ -19,12 +19,12 @@ public class ParameterTest {
     }
 
     @Test
-    public void createsParameterFromSingleWordNonBeanPropertyMethodName() {
+    public void createsParameterFromSingleWordMethodName() {
         assertThat(Parameter.fromMethodName("fizz"), equalTo(new Parameter("FIZZ")));
     }
 
     @Test
-    public void createsParameterFromMultipleWordNonBeanPropertyMethodName() {
+    public void createsParameterFromMultipleWordMethodName() {
         assertThat(Parameter.fromMethodName("fizzBuzz"), equalTo(new Parameter("FIZZ_BUZZ")));
     }
 
@@ -41,43 +41,53 @@ public class ParameterTest {
     }
 
     @Test
-    public void createsParameterFromSingleWordBeanPropertyName() {
-        assertThat(Parameter.fromPropertyName("bar"), equalTo(new Parameter("BAR")));
+    public void createsParameterFromInitialCapsMethodName() {
+        assertThat(Parameter.fromMethodName("FooBar"), equalTo(new Parameter("FOO_BAR")));
     }
 
     @Test
-    public void createsParameterFromMultipleWordBeanPropertyName() {
-        assertThat(Parameter.fromPropertyName("barBaz"), equalTo(new Parameter("BAR_BAZ")));
-    }
-
-    @Test
-    public void createsParameterFromInitialCapsPropertyName() {
-        assertThat(Parameter.fromPropertyName("FooBar"), equalTo(new Parameter("FOO_BAR")));
-    }
-
-    @Test
-    public void createsParameterFromAllCapsPropertyName() {
-        assertThat(Parameter.fromPropertyName("FOOBAR"), equalTo(new Parameter("FOOBAR")));
+    public void createsParameterFromAllCapsMethodName() {
+        assertThat(Parameter.fromMethodName("FOOBAR"), equalTo(new Parameter("FOOBAR")));
     }
 
     @Test
     public void createsParameterFromBareBeanPropertyPrefix_is() {
-        assertThat(Parameter.fromPropertyName("is"), equalTo(new Parameter("IS")));
+        assertThat(Parameter.fromMethodName("is"), equalTo(new Parameter("IS")));
     }
 
     @Test
     public void createsParameterFromBareBeanPropertyPrefix_get() {
-        assertThat(Parameter.fromPropertyName("get"), equalTo(new Parameter("GET")));
+        assertThat(Parameter.fromMethodName("get"), equalTo(new Parameter("GET")));
     }
 
     @Test
-    public void createsParameterFromTrickyCapsPropertyName() {
-        assertThat(Parameter.fromPropertyName("URLOfTheThing"), equalTo(new Parameter("url.of.the.thing")));
+    public void createsParameterFromTrickyCapsMethodName() {
+        assertThat(Parameter.fromMethodName("URLOfTheThing"), equalTo(new Parameter("url.of.the.thing")));
     }
 
     @Test
-    public void createsParameterFromTrickyCapsPropertyNameWithDigits() {
-        assertThat(Parameter.fromPropertyName("HTTP11Proxy"), equalTo(new Parameter("http11.proxy")));
+    public void createsParameterFromTrickyCapsMethodNameWithDigits() {
+        assertThat(Parameter.fromMethodName("HTTP11Proxy"), equalTo(new Parameter("http11.proxy")));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsEmptyMethodName() {
+        Parameter.fromMethodName("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsMethodNameWithLeadingDollar() {
+        Parameter.fromMethodName("$foo");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsMethodNameWithTrailingDollar() {
+        Parameter.fromMethodName("foo$");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsMethodNameWithDollarAfterInitialCaps() {
+        Parameter.fromMethodName("F$");
     }
 
     @Test
