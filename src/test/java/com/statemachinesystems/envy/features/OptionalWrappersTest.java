@@ -5,6 +5,7 @@ import com.statemachinesystems.envy.Default;
 import com.statemachinesystems.envy.UnsupportedTypeException;
 import com.statemachinesystems.envy.common.FeatureTest;
 import org.junit.Test;
+import scala.Option;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertArrayEquals;
@@ -16,9 +17,18 @@ public class OptionalWrappersTest extends FeatureTest {
         Optional<String> foo();
     }
 
+    interface ScalaSimple {
+        Option<String> foo();
+    }
+
     interface GuavaWithDefault {
         @Default("baz")
         Optional<String> foo();
+    }
+
+    interface ScalaWithDefault {
+        @Default("baz")
+        Option<String> foo();
     }
 
     interface GuavaWithAnnotation {
@@ -73,6 +83,24 @@ public class OptionalWrappersTest extends FeatureTest {
     public void wrapsDefaultValueWithGuavaOptional() {
         GuavaWithDefault guava = envy().proxy(GuavaWithDefault.class);
         assertThat(guava.foo(), equalTo(Optional.of("baz")));
+    }
+
+    @Test
+    public void wrapsProvidedValueWithScalaOption() {
+        ScalaSimple scala = envy(configSource().add("foo", "bar")).proxy(ScalaSimple.class);
+        assertThat(scala.foo(), equalTo(Option.apply("bar")));
+    }
+
+    @Test
+    public void wrapsMissingValueWithScalaOption() {
+        ScalaSimple scala = envy().proxy(ScalaSimple.class);
+        assertThat(scala.foo(), equalTo(Option.<String>empty()));
+    }
+
+    @Test
+    public void wrapsDefaultValueWithScalaOption() {
+        ScalaWithDefault scala = envy().proxy(ScalaWithDefault.class);
+        assertThat(scala.foo(), equalTo(Option.apply("baz")));
     }
 
     @Test
