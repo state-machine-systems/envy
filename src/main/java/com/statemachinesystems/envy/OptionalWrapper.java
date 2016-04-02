@@ -25,6 +25,7 @@ public class OptionalWrapper {
     }
 
     private static final Invoker[] INVOKERS = {
+            new Invoker("java.util.Optional", "ofNullable"),
             new Invoker("scala.Option", "apply"),
             new Invoker("com.google.common.base.Optional", "fromNullable")
     };

@@ -11,7 +11,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
 
-public class OptionalWrappersTest extends FeatureTest {
+public class OptionalWrapperTest extends FeatureTest {
 
     interface GuavaSimple {
         Optional<String> foo();
