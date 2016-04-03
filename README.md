@@ -41,8 +41,7 @@ as a dependency in your Maven/SBT/Gradle/whatever build.
 
 ### Default values
 
-Envy treats all parameters as mandatory - nulls are bad.
-Instead, you can provide a default value for optional parameters:
+Envy treats all parameters as mandatory, but you can provide a default value using the `@Default` annotation:
 
     import com.statemachinesystems.envy.Default;
 
@@ -53,14 +52,20 @@ Instead, you can provide a default value for optional parameters:
 
 ### Optional values
 
-Sometimes a parameter type has no meaningful default value, or you need to test for its absence. Nulls are still bad,
-but you can have them if you really need them:
+Sometimes a parameter type has no meaningful default value, or you need to test for its absence.
+Envy supports Java 8's `Optional`, Scala's `Option` and Guava's `Optional` types.
+
+    interface FooConfig {
+        Optional<URL> getUrl();
+    }
+
+If you aren't on Java 8, and don't want to use Guava, you can force Envy to allow null values using the `@Optional` annotation:
 
     import com.statemachinesystems.envy.Optional;
 
     interface FooConfig {
         @Optional
-        URL getOptionalUrl();
+        URL nullableUrl();
     }
 
 ### Vanity naming
@@ -162,4 +167,4 @@ Then, when instantiating your configuration, pass along an instance of your pars
     MyConfig config = Envy.configure(MyConfig.class, new MyCustomTypeParser());
 
 
-&copy; 2016 State Machine Systems Ltd. [Apache Licence, Version 2.0]( http://www.apache.org/licenses/LICENSE-2.0)
+&copy; 2014-2016 State Machine Systems Ltd. [Apache Licence, Version 2.0]( http://www.apache.org/licenses/LICENSE-2.0)
