@@ -39,6 +39,8 @@
     <properties>
         <junit.version>4.11</junit.version>
         <mockito.version>1.9.5</mockito.version>
+        <guava.version>19.0</guava.version>
+        <scala.library.version>2.11.8</scala.library.version>
         <maven.compiler.plugin.version>3.1</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>2.17</maven.surefire.plugin.version>
         <maven.release.plugin.version>2.5.1</maven.release.plugin.version>
@@ -65,6 +67,18 @@
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.library.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -73,9 +87,26 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <configuration>
+                            <source>${java.source.version}</source>
+                            <target>${java.target.version}</target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>default-testCompile</id>
+                        <configuration>
+                            <source>${test.source.version}</source>
+                            <target>${test.target.version}</target>
+                        </configuration>
+                    </execution>
+                </executions>
                 <configuration>
-                    <source>${java.source.version}</source>
-                    <target>${java.target.version}</target>
+                    <testExcludes>
+                        <testExclude>${excluded.test.pattern}</testExclude>
+                    </testExcludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -93,6 +124,7 @@
                             <argLine>${jacocoAgentConfigArgs}</argLine>
                             <excludes>
                                 <exclude>**/integration/*.*</exclude>
+                                <exclude>${excluded.test.pattern}</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -197,18 +229,33 @@
             <activation>
                 <jdk>1.6</jdk>
             </activation>
+            <properties>
+                <test.source.version>1.6</test.source.version>
+                <test.target.version>1.6</test.target.version>
+                <excluded.test.pattern>**/Java8*.*</excluded.test.pattern>
+            </properties>
         </profile>
         <profile>
             <id>jdk-1.7</id>
             <activation>
                 <jdk>1.7</jdk>
             </activation>
+            <properties>
+                <test.source.version>1.6</test.source.version>
+                <test.target.version>1.7</test.target.version>
+                <excluded.test.pattern>**/Java8*.*</excluded.test.pattern>
+            </properties>
         </profile>
         <profile>
             <id>jdk-1.8</id>
             <activation>
                 <jdk>1.8</jdk>
             </activation>
+            <properties>
+                <test.source.version>1.6</test.source.version>
+                <test.target.version>1.8</test.target.version>
+                <excluded.test.pattern>none</excluded.test.pattern>
+            </properties>
         </profile>
         <profile>
             <id>release-sign-artifacts</id>
