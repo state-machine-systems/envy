@@ -1,12 +1,10 @@
 package com.statemachinesystems.envy;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static com.statemachinesystems.envy.Assertions.*;
 
@@ -40,7 +38,7 @@ public class ConfigExtractor {
     }
 
     private static Map<String, Method> getMethodsByName(Class<?> configClass) {
-        Map<String, Method> methodsByName = new LinkedHashMap<String, Method>();
+        Map<String, Method> methodsByName = new TreeMap<String, Method>();
         for (Class<?> superInterface : configClass.getInterfaces()) {
             methodsByName.putAll(getMethodsByName(superInterface));
         }
@@ -93,7 +91,7 @@ public class ConfigExtractor {
     }
 
     private Map<String, Object> extractValuesByMethodName(Class<?> configClass, Parameter prefix) {
-        Map<String, Object> values = new LinkedHashMap<String, Object>();
+        Map<String, Object> values = new TreeMap<String, Object>();
 
         for (Method method : getMethods(configClass)) {
             assertMethodWithNoParameters(method);
