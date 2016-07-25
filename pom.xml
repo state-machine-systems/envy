@@ -107,6 +107,8 @@
                     <testExcludes>
                         <testExclude>${excluded.test.pattern}</testExclude>
                     </testExcludes>
+                    <source>${java.source.version}</source>
+                    <target>${java.target.version}</target>
                 </configuration>
             </plugin>
             <plugin>

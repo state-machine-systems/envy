@@ -27,7 +27,7 @@ public class EnvyIntegrationTest {
         @Name("com.foo.long.and.awkward.name")
         String withCustomName();
 
-        @Optional
+        @Nullable
         String mightBeNull();
 
         Object objectType();
@@ -93,7 +93,7 @@ public class EnvyIntegrationTest {
     }
 
     @Test
-    public void returnsNullForUndefinedOptionalParameter() {
+    public void returnsNullForUndefinedNullableParameter() {
         assertNull(config.mightBeNull());
     }
 
