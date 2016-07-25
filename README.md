@@ -59,16 +59,17 @@ Envy supports Java 8's `Optional`, Scala's `Option` and Guava's `Optional` types
         Optional<URL> getUrl();
     }
 
-If you aren't on Java 8, and don't want to use Guava, you can force Envy to allow null values using the `@Optional` annotation:
+If you aren't on Java 8, and don't want to use Guava, you can force Envy to allow null values using
+the `@Nullable` annotation:
 
-    import com.statemachinesystems.envy.Optional;
+    import com.statemachinesystems.envy.Nullable;
 
     interface FooConfig {
-        @Optional
+        @Nullable
         URL nullableUrl();
     }
 
-### Vanity naming
+### Custom naming
 
 Long and/or awkward names can be overridden using the `@Name` annotation:
 
@@ -95,7 +96,7 @@ To apply a prefix to all names in a configuration interface, use the `@Prefix` a
 
 Interface inheritance is supported, so you can factor out common parameters in more complex configurations.
 
-Annotations on methods (`@Name`, `@Optional` and `@Default`) are inherited,
+Annotations on methods (`@Name`, `@Nullable` and `@Default`) are inherited,
 but can be overridden (or removed entirely) by redeclaring the method in a sub-interface. `@Prefix` annotations
 are *not* inherited.
 
