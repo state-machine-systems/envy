@@ -7,6 +7,8 @@ import com.statemachinesystems.envy.parsers.StringValueParser;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Map;
+
 import static org.junit.Assert.*;
 
 public class ConfigExtractorTest {
@@ -163,6 +165,16 @@ public class ConfigExtractorTest {
         });
         ConfigExtractor configExtractor = new ConfigExtractor(valueParserFactory, configSource);
         configExtractor.extractValuesByMethodName(BadConfigWithVoidReturnType.class);
+    }
+
+    @Test
+    public void mapKeysAreOrderedAlphabetically() {
+        String previousKey = "";
+        for (Map.Entry<String, ?> entry : configExtractor.extractValuesByMethodName(ExampleConfig.class).entrySet()) {
+            String currentKey = entry.getKey();
+            assertTrue(previousKey.compareTo(currentKey) <= 0);
+            previousKey = currentKey;
+        }
     }
 
     private Object getValue(String methodName) {
