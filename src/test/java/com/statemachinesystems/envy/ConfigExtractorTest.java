@@ -27,9 +27,17 @@ public class ConfigExtractorTest {
         @Name("custom.parameter.name")
         String stringWithCustomName();
 
+        @Nullable
+        Integer nullable();
+
+        @Nullable
+        Integer missing();
+
+        @SuppressWarnings("deprecation")
         @Optional
         Integer optionalNonNull();
 
+        @SuppressWarnings("deprecation")
         @Optional
         Integer optionalNull();
 
@@ -37,9 +45,9 @@ public class ConfigExtractorTest {
     }
 
     @SuppressWarnings("unused")
-    public interface BadConfigCombiningOptionalWithPrimitive {
-        @Optional
-        int notOptional();
+    public interface BadConfigCombiningNullableWithPrimitive {
+        @Nullable
+        int notNullable();
     }
 
     @SuppressWarnings("unused")
@@ -66,7 +74,8 @@ public class ConfigExtractorTest {
                 .add("AN_ARRAY_OF_BOXED_INTEGERS", "7")
                 .add("AN_ARRAY_OF_PRIMITIVE_INTEGERS", "1,2,3")
                 .add("CUSTOM_PARAMETER_NAME", "bar")
-                .add("OPTIONAL_NON_NULL", "5")
+                .add("NULLABLE", "5")
+                .add("OPTIONAL_NON_NULL", "6")
                 .add("METHOD_WITH_OBJECT_RETURN_TYPE", "bar")
                 .add("INT_IN_SUB_INTERFACE", "37")
                 .add("INT_IN_SUB_SUB_INTERFACE", "98")
@@ -114,8 +123,18 @@ public class ConfigExtractorTest {
     }
 
     @Test
+    public void retrievesNullableValue() throws Throwable {
+        assertEquals(5, getValue("nullable"));
+    }
+
+    @Test
+    public void retrievesNullMissingValue() throws Throwable {
+        assertNull(getValue("missing"));
+    }
+
+    @Test
     public void retrievesOptionalNonNullValue() throws Throwable {
-        assertEquals(5, getValue("optionalNonNull"));
+        assertEquals(6, getValue("optionalNonNull"));
     }
 
     @Test
@@ -138,8 +157,8 @@ public class ConfigExtractorTest {
     }
 
     @Test(expected = MissingParameterValueException.class)
-    public void rejectsOptionalAnnotationWithPrimitiveReturnType() {
-        configExtractor.extractValuesByMethodName(BadConfigCombiningOptionalWithPrimitive.class);
+    public void rejectsNullableAnnotationWithPrimitiveReturnType() {
+        configExtractor.extractValuesByMethodName(BadConfigCombiningNullableWithPrimitive.class);
     }
 
     @Test(expected = IllegalArgumentException.class)

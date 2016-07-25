@@ -29,7 +29,11 @@ public class ConfigExtractor {
     }
 
     private static boolean isMandatory(Method method) {
-        return (method.getReturnType().isPrimitive() || method.getAnnotation(Optional.class) == null)
+        @SuppressWarnings("deprecation")
+        boolean notAnnotated = method.getAnnotation(Nullable.class) == null
+                && method.getAnnotation(Optional.class) == null;
+
+        return (method.getReturnType().isPrimitive() || notAnnotated)
                 && ! OptionalWrapper.isWrapperType(method.getReturnType());
     }
 

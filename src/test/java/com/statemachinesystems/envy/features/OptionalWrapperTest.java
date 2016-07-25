@@ -2,6 +2,7 @@ package com.statemachinesystems.envy.features;
 
 import com.google.common.base.Optional;
 import com.statemachinesystems.envy.Default;
+import com.statemachinesystems.envy.Nullable;
 import com.statemachinesystems.envy.UnsupportedTypeException;
 import com.statemachinesystems.envy.common.FeatureTest;
 import org.junit.Test;
@@ -32,7 +33,7 @@ public class OptionalWrapperTest extends FeatureTest {
     }
 
     interface GuavaWithAnnotation {
-        @com.statemachinesystems.envy.Optional
+        @Nullable
         Optional<Integer> foo();
     }
 
@@ -104,13 +105,13 @@ public class OptionalWrapperTest extends FeatureTest {
     }
 
     @Test
-    public void optionalAnnotationHasNoEffectForPresentValue() {
+    public void nullableAnnotationHasNoEffectForPresentValue() {
         GuavaWithAnnotation guava = envy(configSource().add("foo", "1")).proxy(GuavaWithAnnotation.class);
         assertThat(guava.foo(), equalTo(Optional.of(1)));
     }
 
     @Test
-    public void optionalAnnotationHasNoEffectForAbsentValue() {
+    public void nullableAnnotationHasNoEffectForAbsentValue() {
         GuavaWithAnnotation guava = envy().proxy(GuavaWithAnnotation.class);
         assertThat(guava.foo(), equalTo(Optional.<Integer>absent()));
     }
