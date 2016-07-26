@@ -107,8 +107,6 @@
                     <testExcludes>
                         <testExclude>${excluded.test.pattern}</testExclude>
                     </testExcludes>
-                    <source>${java.source.version}</source>
-                    <target>${java.target.version}</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -254,7 +252,7 @@
                 <jdk>1.8</jdk>
             </activation>
             <properties>
-                <test.source.version>1.6</test.source.version>
+                <test.source.version>1.8</test.source.version>
                 <test.target.version>1.8</test.target.version>
                 <excluded.test.pattern>none</excluded.test.pattern>
             </properties>

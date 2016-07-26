@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static com.statemachinesystems.envy.Assertions.*;
+import static java.lang.reflect.Modifier.isStatic;
 
 /**
  * Extracts configuration values indexed by method name, as used by
@@ -47,7 +48,9 @@ public class ConfigExtractor {
             methodsByName.putAll(getMethodsByName(superInterface));
         }
         for (Method method : configClass.getDeclaredMethods()) {
-            methodsByName.put(method.getName(), method);
+            if (! isStatic(method.getModifiers())) {
+                methodsByName.put(method.getName(), method);
+            }
         }
         return methodsByName;
     }
