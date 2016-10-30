@@ -78,6 +78,13 @@ public class NestingTest extends FeatureTest {
         Inner1 foo();
     }
 
+    public interface Recursive {
+        String foo();
+
+        @SuppressWarnings("unused")
+        Recursive inner();
+    }
+
     @Test
     public void populatesConfigWithOneLevelOfNesting() {
         ConfigSource configSource = configSource().add("foo.bar", "1");
@@ -153,4 +160,9 @@ public class NestingTest extends FeatureTest {
         envy(configSource).proxy(Outer8.class);
     }
 
+    @Test(expected = MissingParameterValueException.class)
+    public void rejectsRecursiveNesting() {
+        ConfigSource configSource = configSource().add("foo", "1").add("inner.foo", "2");
+        envy(configSource).proxy(Recursive.class);
+    }
 }
