@@ -99,6 +99,10 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
             }
         }
 
+        if (value instanceof SensitiveValueWrapper) {
+            return ((SensitiveValueWrapper) value).unwrap();
+        }
+
         return value;
     }
 

@@ -28,6 +28,10 @@ public class ConfigExtractor {
         return method.getAnnotation(Default.class) != null;
     }
 
+    private static boolean hasSensitiveAnnotation(Method method) {
+        return method.getAnnotation(Sensitive.class) != null;
+    }
+
     private static boolean isMandatory(Method method) {
         @SuppressWarnings("deprecation")
         boolean notAnnotated = method.getAnnotation(Nullable.class) == null
@@ -118,16 +122,23 @@ public class ConfigExtractor {
 
         ValueParser<?> valueParser = valueParserFactory.getValueParser(propertyClass);
 
+        Object value;
         if (valueParser != null) {
             String rawValue = getRawValue(parameter, configClass, method);
-            return parseValue(valueParser, rawValue, propertyClass);
+            value = parseValue(valueParser, rawValue, propertyClass);
         } else if (propertyClass.isInterface()) {
-            return extractNestedValue(method, parameter, propertyClass);
+            value = extractNestedValue(method, parameter, propertyClass);
         } else {
             throw new UnsupportedTypeException(
                     String.format("Cannot parse value of class %s (%s.%s)",
                             propertyClass.getName(), configClass.getSimpleName(), method.getName()));
         }
+
+        if (value != null && hasSensitiveAnnotation(method)) {
+            return new SensitiveValueWrapper(value);
+        }
+
+        return value;
     }
 
     private String getRawValue(Parameter parameter, Class<?> configClass, Method method) {
