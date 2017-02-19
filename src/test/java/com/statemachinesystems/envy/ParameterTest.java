@@ -70,6 +70,26 @@ public class ParameterTest {
         assertThat(Parameter.fromMethodName("HTTP11Proxy"), equalTo(new Parameter("http11.proxy")));
     }
 
+    @Test
+    public void createsParameterWithTrailingSingleCapitalLetter() {
+        assertThat(Parameter.fromMethodName("LogN"), equalTo(new Parameter("log.n")));
+    }
+
+    @Test
+    public void createsParameterWithTrailingSingleDigit() {
+        assertThat(Parameter.fromMethodName("Log2"), equalTo(new Parameter("log2")));
+    }
+
+    @Test
+    public void createsParameterWithTrailingDigits() {
+        assertThat(Parameter.fromMethodName("Log10"), equalTo(new Parameter("log10")));
+    }
+
+    @Test
+    public void createsParameterWithDigitsInMiddleOfWordFollowedByCaps() {
+        assertThat(Parameter.fromMethodName("X10AThing"), equalTo(new Parameter("x10.a.thing")));
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void rejectsEmptyMethodName() {
         Parameter.fromMethodName("");

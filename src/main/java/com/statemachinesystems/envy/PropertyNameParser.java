@@ -14,7 +14,7 @@ import static java.lang.Character.isUpperCase;
  */
 public class PropertyNameParser {
 
-    private static enum ParserState {
+    private enum ParserState {
         INITIAL, ACCUMULATING, ACCUMULATING_WITH_INITIAL_CAPS
     }
 
@@ -86,6 +86,7 @@ public class PropertyNameParser {
                 case ACCUMULATING_WITH_INITIAL_CAPS:
                     if (isLowerCase(ch)) {
                         buffer(ch);
+                        state = ParserState.ACCUMULATING;
                     } else if (isUpperCase(ch)) {
                         int lookahead = reader.read();
                         if (isLowerCase(lookahead)) {
@@ -98,7 +99,8 @@ public class PropertyNameParser {
                             buffer(ch);
                         }
                     } else if (isDigit(ch)) {
-                         buffer(ch);
+                        buffer(ch);
+                        state = ParserState.ACCUMULATING;
                     } else if (isEof(ch)) {
                         emit();
                         return parts;
