@@ -8,16 +8,20 @@ which helps you build [twelve-factor apps](http://www.12factor.net/config).
 Say you need to access the environment variables `API_KEY` and `API_SECRET` in your program.
 First, you define an interface with getter methods named after the parameters you want to bring in:
 
-    interface MyConfig {
-        String getApiKey();
-        String getApiSecret();
-    }
+```java
+interface MyConfig {
+    String getApiKey();
+    String getApiSecret();
+}
+```
 
 Envy can then instantiate your configuration interface like this:
 
-    import com.statemachinesystems.envy.Envy;
-    ...
-    MyConfig config = Envy.configure(MyConfig.class);
+```java
+import com.statemachinesystems.envy.Envy;
+...
+MyConfig config = Envy.configure(MyConfig.class);
+```
 
 Now, calling `config.getApiKey()` will return the value of the `API_KEY` environment variable, and
 `config.getApiSecret()` will return the value of `API_SECRET`.
@@ -28,10 +32,12 @@ system property are both defined with equivalent names, the system property take
 
 Also, you don't have to use bean-style method names - the following version would work in exactly the same way:
 
-    interface MyConfig {
-        String apiKey();
-        String apiSecret();
-    }
+```java
+  interface MyConfig {
+      String apiKey();
+      String apiSecret();
+  }
+```
 
 ### Getting started
 
@@ -43,54 +49,64 @@ as a dependency in your Maven/SBT/Gradle/whatever build.
 
 Envy treats all parameters as mandatory, but you can provide a default value using the `@Default` annotation:
 
-    import com.statemachinesystems.envy.Default;
+```java
+import com.statemachinesystems.envy.Default;
 
-    interface ServerConfig {
-        @Default("80")
-        int getHttpPort();
-    }
+interface ServerConfig {
+    @Default("80")
+    int getHttpPort();
+}
+```
 
 ### Optional values
 
 Sometimes a parameter type has no meaningful default value, or you need to test for its absence.
 Envy supports Java 8's `Optional`, Scala's `Option` and Guava's `Optional` types.
 
-    interface FooConfig {
-        Optional<URL> getUrl();
-    }
+```java
+interface FooConfig {
+    Optional<URL> getUrl();
+}
+```
 
 If you aren't on Java 8, and don't want to use Guava, you can force Envy to allow null values using
 the `@Nullable` annotation:
 
-    import com.statemachinesystems.envy.Nullable;
+```java
+import com.statemachinesystems.envy.Nullable;
 
-    interface FooConfig {
-        @Nullable
-        URL nullableUrl();
-    }
+interface FooConfig {
+    @Nullable
+    URL nullableUrl();
+}
+```
 
 ### Custom naming
 
 Long and/or awkward names can be overridden using the `@Name` annotation:
 
-    import com.statemachinesystems.envy.Name;
+```java
+import com.statemachinesystems.envy.Name;
 
-    interface BarConfig {
-        @Name("com.foo.extremely.long.property.name.for.thing")
-        String getThing();
-    }
+interface BarConfig {
+    @Name("com.foo.extremely.long.property.name.for.thing")
+    String getThing();
+}
+```
 
 To apply a prefix to all names in a configuration interface, use the `@Prefix` annotation:
 
-    import com.statemachinesystems.envy.Prefix;
+```java
+import com.statemachinesystems.envy.Prefix;
 
-    @Prefix("baz.config")
-    interface BazConfig {
-        /**
-         * Configured by BAZ_CONFIG_HTTP_PORT
-         */
-        int getHttpPort();
-    }
+@Prefix("baz.config")
+interface BazConfig {
+    /**
+     * Configured by BAZ_CONFIG_HTTP_PORT
+     */
+    int getHttpPort();
+}
+```
 
 ### Inheritance
 
@@ -106,26 +122,28 @@ are *not* inherited.
 Configuration interfaces can be nested, which allows reuse of repeated structures. Here's an example using both
 inheritance and nesting:
 
-    interface Credentials {
-        String username();
-        String password();
-    }
+```java
+interface Credentials {
+    String username();
+    String password();
+}
 
-    interface ConnectionConfig extends Credentials {
-        java.net.InetSocketAddress address();
-    }
+interface ConnectionConfig extends Credentials {
+    java.net.InetSocketAddress address();
+}
 
-    interface AppConfig {
-        /**
-         * Configured by DATABASE_ADDRESS, DATABASE_USERNAME and DATABASE_PASSWORD
-         */
-        ConnectionConfig database();
+interface AppConfig {
+    /**
+     * Configured by DATABASE_ADDRESS, DATABASE_USERNAME and DATABASE_PASSWORD
+     */
+    ConnectionConfig database();
 
-        /**
-         * Configured by MESSAGE_BROKER_ADDRESS, MESSAGE_BROKER_USERNAME and MESSAGE_BROKER_PASSWORD
-         */
-        ConnectionConfig messageBroker();
-    }
+    /**
+     * Configured by MESSAGE_BROKER_ADDRESS, MESSAGE_BROKER_USERNAME and MESSAGE_BROKER_PASSWORD
+     */
+    ConnectionConfig messageBroker();
+}
+```
 
 ### Supported data types
 
@@ -149,23 +167,26 @@ Envy will do the following type conversions for you:
 
 To parse a custom type, implement the `ValueParser` interface:
 
-    import com.statemachinesystems.envy.ValueParser;
+```java
+import com.statemachinesystems.envy.ValueParser;
 
-    public class MyCustomTypeParser implements ValueParser<MyCustomType> {
-        @Override
-        public MyCustomType parseValue(String value) {
-            ...
-        }
-
-        @Override
-        public Class<MyCustomType> getValueClass() {
-            return MyCustomType.class;
-        }
+public class MyCustomTypeParser implements ValueParser<MyCustomType> {
+    @Override
+    public MyCustomType parseValue(String value) {
+        ...
     }
+
+    @Override
+    public Class<MyCustomType> getValueClass() {
+        return MyCustomType.class;
+    }
+}
+```
 
 Then, when instantiating your configuration, pass along an instance of your parser like this:
 
-    MyConfig config = Envy.configure(MyConfig.class, new MyCustomTypeParser());
+```java
+MyConfig config = Envy.configure(MyConfig.class, new MyCustomTypeParser());
+```
 
-
-&copy; 2014-2016 State Machine Systems Ltd. [Apache Licence, Version 2.0]( http://www.apache.org/licenses/LICENSE-2.0)
+&copy; 2014-2017 State Machine Systems Ltd. [Apache Licence, Version 2.0]( http://www.apache.org/licenses/LICENSE-2.0)
