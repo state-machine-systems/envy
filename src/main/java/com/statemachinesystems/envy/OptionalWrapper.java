@@ -58,14 +58,6 @@ public class OptionalWrapper {
             return (Class<?>) propertyType;
         }
 
-        if (propertyType instanceof GenericArrayType) {
-            GenericArrayType arrayType = (GenericArrayType) propertyType;
-            Type componentType = arrayType.getGenericComponentType();
-            if (componentType instanceof Class) {
-                return Array.newInstance((Class<?>) componentType, 0).getClass();
-            }
-        }
-
         throw new UnsupportedTypeException("Unsupported generic type " + type);
     }
 
