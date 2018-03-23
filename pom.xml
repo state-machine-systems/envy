@@ -48,9 +48,9 @@
         <maven.javadoc.plugin.version>2.10.1</maven.javadoc.plugin.version>
         <maven.deploy.plugin.version>2.8.2</maven.deploy.plugin.version>
         <maven.gpg.plugin.version>1.5</maven.gpg.plugin.version>
-        <jacoco.version>0.7.1.201405082137</jacoco.version>
-        <java.source.version>1.6</java.source.version>
-        <java.target.version>1.6</java.target.version>
+        <jacoco.version>0.8.0</jacoco.version>
+        <java.source.version>1.8</java.source.version>
+        <java.target.version>1.8</java.target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -98,18 +98,11 @@
                     <execution>
                         <id>default-testCompile</id>
                         <configuration>
-                            <source>${test.source.version}</source>
-                            <target>${test.target.version}</target>
+                            <source>${java.source.version}</source>
+                            <target>${java.target.version}</target>
                         </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <testExcludes>
-                        <testExclude>${excluded.test.pattern}</testExclude>
-                    </testExcludes>
-                    <source>${java.source.version}</source>
-                    <target>${java.target.version}</target>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -126,7 +119,6 @@
                             <argLine>${jacocoAgentConfigArgs}</argLine>
                             <excludes>
                                 <exclude>**/integration/*.*</exclude>
-                                <exclude>${excluded.test.pattern}</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -226,39 +218,6 @@
     </build>
 
     <profiles>
-        <profile>
-            <id>jdk-1.6</id>
-            <activation>
-                <jdk>1.6</jdk>
-            </activation>
-            <properties>
-                <test.source.version>1.6</test.source.version>
-                <test.target.version>1.6</test.target.version>
-                <excluded.test.pattern>**/Java8*.*</excluded.test.pattern>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk-1.7</id>
-            <activation>
-                <jdk>1.7</jdk>
-            </activation>
-            <properties>
-                <test.source.version>1.6</test.source.version>
-                <test.target.version>1.7</test.target.version>
-                <excluded.test.pattern>**/Java8*.*</excluded.test.pattern>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk-1.8</id>
-            <activation>
-                <jdk>1.8</jdk>
-            </activation>
-            <properties>
-                <test.source.version>1.6</test.source.version>
-                <test.target.version>1.8</test.target.version>
-                <excluded.test.pattern>none</excluded.test.pattern>
-            </properties>
-        </profile>
         <profile>
             <id>release-sign-artifacts</id>
             <activation>
