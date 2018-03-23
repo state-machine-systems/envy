@@ -1,6 +1,5 @@
 package com.statemachinesystems.envy.features;
 
-import com.google.common.base.Optional;
 import com.statemachinesystems.envy.Default;
 import com.statemachinesystems.envy.Nullable;
 import com.statemachinesystems.envy.UnsupportedTypeException;
@@ -8,23 +7,34 @@ import com.statemachinesystems.envy.common.FeatureTest;
 import org.junit.Test;
 import scala.Option;
 
+import java.util.Optional;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
 
 public class OptionalWrapperTest extends FeatureTest {
 
-    interface GuavaSimple {
+    interface Java8Simple {
         Optional<String> foo();
+    }
+
+    interface GuavaSimple {
+        com.google.common.base.Optional<String> foo();
     }
 
     interface ScalaSimple {
         Option<String> foo();
     }
 
-    interface GuavaWithDefault {
+    interface Java8WithDefault {
         @Default("baz")
         Optional<String> foo();
+    }
+
+    interface GuavaWithDefault {
+        @Default("baz")
+        com.google.common.base.Optional<String> foo();
     }
 
     interface ScalaWithDefault {
@@ -32,58 +42,76 @@ public class OptionalWrapperTest extends FeatureTest {
         Option<String> foo();
     }
 
-    interface GuavaWithAnnotation {
+    interface Java8WithAnnotation {
         @Nullable
         Optional<Integer> foo();
     }
 
-    interface GuavaWithArray {
+    interface Java8WithArray {
         Optional<Integer[]> foo();
     }
 
-    interface GuavaWithPrimitiveArray {
+    interface Java8WithPrimitiveArray {
         Optional<int[]> foo();
     }
 
-    interface GuavaWithNested {
+    interface Java8WithNested {
         interface Nested {
             String bar();
         }
         Optional<Nested> foo();
     }
 
-    interface GuavaWithArrayOfOptional {
+    interface Java8WithArrayOfOptional {
         Optional<String>[] foo();
     }
 
-    interface GuavaWithOptionalOptional {
+    interface Java8WithOptionalOptional {
         Optional<Optional<String>> foo();
     }
 
-    interface GuavaWithWildcard {
+    interface Java8WithWildcard {
         Optional<? extends CharSequence> foo();
     }
 
-    interface GuavaWithArrayOfGenericType {
+    interface Java8WithArrayOfGenericType {
         <T> Optional<T[]> foo();
+    }
+
+    @Test
+    public void wrapsProvidedValueWithJava8Optional() {
+        Java8Simple java8 = envy(configSource().add("foo", "bar")).proxy(Java8Simple.class);
+        assertThat(java8.foo(), equalTo(Optional.of("bar")));
+    }
+
+    @Test
+    public void wrapsMissingValueWithJava8Optional() {
+        Java8Simple java8 = envy().proxy(Java8Simple.class);
+        assertThat(java8.foo(), equalTo(Optional.<String>empty()));
+    }
+
+    @Test
+    public void wrapsDefaultValueWithJava8Optional() {
+        Java8WithDefault java8 = envy().proxy(Java8WithDefault.class);
+        assertThat(java8.foo(), equalTo(Optional.of("baz")));
     }
 
     @Test
     public void wrapsProvidedValueWithGuavaOptional() {
         GuavaSimple guava = envy(configSource().add("foo", "bar")).proxy(GuavaSimple.class);
-        assertThat(guava.foo(), equalTo(Optional.of("bar")));
+        assertThat(guava.foo(), equalTo(com.google.common.base.Optional.of("bar")));
     }
 
     @Test
     public void wrapsMissingValueWithGuavaOptional() {
         GuavaSimple guava = envy().proxy(GuavaSimple.class);
-        assertThat(guava.foo(), equalTo(Optional.<String>absent()));
+        assertThat(guava.foo(), equalTo(com.google.common.base.Optional.<String>absent()));
     }
 
     @Test
     public void wrapsDefaultValueWithGuavaOptional() {
         GuavaWithDefault guava = envy().proxy(GuavaWithDefault.class);
-        assertThat(guava.foo(), equalTo(Optional.of("baz")));
+        assertThat(guava.foo(), equalTo(com.google.common.base.Optional.of("baz")));
     }
 
     @Test
@@ -106,58 +134,58 @@ public class OptionalWrapperTest extends FeatureTest {
 
     @Test
     public void nullableAnnotationHasNoEffectForPresentValue() {
-        GuavaWithAnnotation guava = envy(configSource().add("foo", "1")).proxy(GuavaWithAnnotation.class);
-        assertThat(guava.foo(), equalTo(Optional.of(1)));
+        Java8WithAnnotation java8 = envy(configSource().add("foo", "1")).proxy(Java8WithAnnotation.class);
+        assertThat(java8.foo(), equalTo(Optional.of(1)));
     }
 
     @Test
     public void nullableAnnotationHasNoEffectForAbsentValue() {
-        GuavaWithAnnotation guava = envy().proxy(GuavaWithAnnotation.class);
-        assertThat(guava.foo(), equalTo(Optional.<Integer>absent()));
+        Java8WithAnnotation java8 = envy().proxy(Java8WithAnnotation.class);
+        assertThat(java8.foo(), equalTo(Optional.<Integer>empty()));
     }
 
     @Test
     public void wrapsArray() {
-        GuavaWithArray guava = envy(configSource().add("foo", "1,2,3")).proxy(GuavaWithArray.class);
-        assertArrayEquals(new Integer[] { 1, 2, 3 }, guava.foo().get());
+        Java8WithArray java8 = envy(configSource().add("foo", "1,2,3")).proxy(Java8WithArray.class);
+        assertArrayEquals(new Integer[] { 1, 2, 3 }, java8.foo().get());
     }
 
     @Test
     public void wrapsPrimitiveArray() {
-        GuavaWithPrimitiveArray guava = envy(configSource().add("foo", "1,2,3")).proxy(GuavaWithPrimitiveArray.class);
-        assertArrayEquals(new int[] { 1, 2, 3 }, guava.foo().get());
+        Java8WithPrimitiveArray java8 = envy(configSource().add("foo", "1,2,3")).proxy(Java8WithPrimitiveArray.class);
+        assertArrayEquals(new int[] { 1, 2, 3 }, java8.foo().get());
 
     }
 
     @Test
     public void wrapsProvidedNestedValue() {
-        GuavaWithNested guava = envy(configSource().add("foo.bar", "baz")).proxy(GuavaWithNested.class);
-        assertThat(guava.foo().get().bar(), equalTo("baz"));
+        Java8WithNested java8 = envy(configSource().add("foo.bar", "baz")).proxy(Java8WithNested.class);
+        assertThat(java8.foo().get().bar(), equalTo("baz"));
     }
 
     @Test
     public void wrapsMissingNestedValue() {
-        GuavaWithNested guava = envy().proxy(GuavaWithNested.class);
-        assertThat(guava.foo(), equalTo(Optional.<GuavaWithNested.Nested>absent()));
+        Java8WithNested java8 = envy().proxy(Java8WithNested.class);
+        assertThat(java8.foo(), equalTo(Optional.<Java8WithNested.Nested>empty()));
     }
 
     @Test(expected = UnsupportedTypeException.class)
     public void rejectsArrayOfOptionalValues() {
-        envy().proxy(GuavaWithArrayOfOptional.class);
+        envy().proxy(Java8WithArrayOfOptional.class);
     }
 
     @Test(expected = UnsupportedTypeException.class)
     public void rejectsOptionalOptional() {
-        envy().proxy(GuavaWithOptionalOptional.class);
+        envy().proxy(Java8WithOptionalOptional.class);
     }
 
     @Test(expected = UnsupportedTypeException.class)
     public void rejectsWildcard() {
-        envy().proxy(GuavaWithWildcard.class);
+        envy().proxy(Java8WithWildcard.class);
     }
 
     @Test(expected = UnsupportedTypeException.class)
     public void rejectsGenericArray() {
-        envy().proxy(GuavaWithArrayOfGenericType.class);
+        envy().proxy(Java8WithArrayOfGenericType.class);
     }
 }
