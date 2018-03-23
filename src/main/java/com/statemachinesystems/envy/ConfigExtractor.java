@@ -1,6 +1,7 @@
 package com.statemachinesystems.envy;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -47,7 +48,9 @@ public class ConfigExtractor {
             methodsByName.putAll(getMethodsByName(superInterface));
         }
         for (Method method : configClass.getDeclaredMethods()) {
-            methodsByName.put(method.getName(), method);
+            if (!Modifier.isStatic(method.getModifiers())) {
+                methodsByName.put(method.getName(), method);
+            }
         }
         return methodsByName;
     }
