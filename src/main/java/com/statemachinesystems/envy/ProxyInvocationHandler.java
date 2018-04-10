@@ -80,7 +80,7 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
      * @param configClass  the configuration interface to be proxied
      * @param values       map of configuration values indexed by method name
      */
-    public ProxyInvocationHandler(Class<?> configClass, Map<String, Object> values) {
+    private ProxyInvocationHandler(Class<?> configClass, Map<String, Object> values) {
         this.configClass = configClass;
         this.values = values;
     }
