@@ -60,6 +60,7 @@ public class Envy {
         valueParsers.add(new CharacterValueParser());
         valueParsers.add(new ClassValueParser());
         valueParsers.add(new DoubleValueParser());
+        valueParsers.add(new DurationValueParser());
         valueParsers.add(new FileValueParser());
         valueParsers.add(new FloatValueParser());
         valueParsers.add(new InetAddressValueParser());
