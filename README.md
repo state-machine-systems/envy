@@ -162,7 +162,8 @@ Envy will do the following type conversions for you:
 * `java.net.InetAddress`, `Inet4Address`, `Inet6Address`, `InetSocketAddress`
 * `java.util.regex.Pattern`
 * `java.util.UUID`
-* `java.time.Duration` using a flexible format (e.g. "100ms", "30 seconds")
+* `java.time.Duration` e.g. "100ms", "30 seconds", "1000" (defaults to millis)
+* `java.time.Period` e.g. "1d", "2 weeks", "3 months", "10" (defaults to days)
 
 ### Custom data types
 
