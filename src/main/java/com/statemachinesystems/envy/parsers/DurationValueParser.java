@@ -4,7 +4,6 @@ import com.statemachinesystems.envy.ValueParser;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -35,7 +34,7 @@ public class DurationValueParser implements ValueParser<Duration> {
 
     private static Pattern pattern = Pattern.compile("([-+]?\\d+)(\\s*(\\p{Lower}+))?", Pattern.UNICODE_CHARACTER_CLASS);
 
-    private static Map<String, TemporalUnit> units = new HashMap<>();
+    private static Map<String, ChronoUnit> units = new HashMap<>();
 
     static {
         for (String label : new String[] {"d", "day", "days"}) {
@@ -69,7 +68,7 @@ public class DurationValueParser implements ValueParser<Duration> {
         }
         long amount = Long.parseLong(matcher.group(1));
         String label = matcher.group(3);
-        TemporalUnit unit = label == null ? ChronoUnit.MILLIS : units.get(label);
+        ChronoUnit unit = label == null ? ChronoUnit.MILLIS : units.get(label);
         if (unit == null) {
             throw new IllegalArgumentException("Invalid duration unit: " + label);
         }
