@@ -71,6 +71,7 @@ public class Envy {
         valueParsers.add(new LongValueParser());
         valueParsers.add(new ObjectAsStringValueParser());
         valueParsers.add(new PatternValueParser());
+        valueParsers.add(new PeriodValueParser());
         valueParsers.add(new ShortValueParser());
         valueParsers.add(new StringValueParser());
         valueParsers.add(new UuidValueParser());
