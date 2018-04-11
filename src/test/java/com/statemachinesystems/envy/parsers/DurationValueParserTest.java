@@ -13,6 +13,11 @@ public class DurationValueParserTest {
     private final DurationValueParser parser = new DurationValueParser();
 
     @Test
+    public void parsesDurationsWithoutLabelAsMilliseconds() {
+        assertThat(parser.parseValue("5"), is(Duration.ofMillis(5)));
+    }
+
+    @Test
     public void parsesDurationInDays() {
         String[] variants = {"6d", "6 day", "6 days"};
         Duration expected = Duration.ofDays(6);
@@ -96,11 +101,6 @@ public class DurationValueParserTest {
     @Test(expected = IllegalArgumentException.class)
     public void rejectsEmptyString() {
         parser.parseValue("");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void rejectsMissingUnit() {
-        parser.parseValue("5");
     }
 
     @Test(expected = IllegalArgumentException.class)

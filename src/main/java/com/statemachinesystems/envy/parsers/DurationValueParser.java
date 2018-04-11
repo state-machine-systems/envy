@@ -15,10 +15,10 @@ import java.util.regex.Pattern;
  *
  * <p>Supports the following grammar:</p>
  * <pre>
- *     ("-"|"+")? digit+ whitespace? label
+ *     ("-"|"+")? digit+ (whitespace? unit)?
  * </pre>
  *
- * Where <code>label</code> must be one of the following lower-case values:
+ * Where <code>unit</code> must be one of the following lower-case labels:
  * <ul>
  *     <li><code>d</code>, <code>day</code> or <code>days</code></li>
  *     <li><code>h</code>, <code>hour</code> or <code>hours</code></li>
@@ -28,10 +28,12 @@ import java.util.regex.Pattern;
  *     <li><code>us</code>, <code>&mu;s</code>, <code>micro</code>, <code>micros</code>, <code>microsecond</code> or <code>microsecond</code></li>
  *     <li><code>ns</code>, <code>nano</code>, <code>nanos</code>, <code>nanosecond</code> or <code>nanoseconds</code></li>
  * </ul>
+ *
+ * <p>Values without a unit label are treated as milliseconds.</p>
  */
 public class DurationValueParser implements ValueParser<Duration> {
 
-    private static Pattern pattern = Pattern.compile("([-+]?\\d+)\\s*(\\p{Lower}+)", Pattern.UNICODE_CHARACTER_CLASS);
+    private static Pattern pattern = Pattern.compile("([-+]?\\d+)(\\s*(\\p{Lower}+))?", Pattern.UNICODE_CHARACTER_CLASS);
 
     private static Map<String, TemporalUnit> units = new HashMap<>();
 
@@ -65,11 +67,11 @@ public class DurationValueParser implements ValueParser<Duration> {
         if (!matcher.matches()) {
             throw new IllegalArgumentException("Invalid duration format: " + value);
         }
-        // TODO sign
         long amount = Long.parseLong(matcher.group(1));
-        TemporalUnit unit = units.get(matcher.group(2));
+        String label = matcher.group(3);
+        TemporalUnit unit = label == null ? ChronoUnit.MILLIS : units.get(label);
         if (unit == null) {
-            throw new IllegalArgumentException("Invalid duration unit: " + matcher.group(2));
+            throw new IllegalArgumentException("Invalid duration unit: " + label);
         }
         return Duration.of(amount, unit);
     }
