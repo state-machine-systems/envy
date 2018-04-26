@@ -69,8 +69,7 @@ interface FooConfig {
 }
 ```
 
-If you aren't on Java 8, and don't want to use Guava, you can force Envy to allow null values using
-the `@Nullable` annotation:
+You can force Envy to allow null values using the `@Nullable` annotation:
 
 ```java
 import com.statemachinesystems.envy.Nullable;
@@ -164,6 +163,7 @@ Envy will do the following type conversions for you:
 * `java.util.UUID`
 * `java.time.Duration` e.g. "100ms", "30 seconds", "1000" (defaults to millis)
 * `java.time.Period` e.g. "1d", "2 weeks", "3 months", "10" (defaults to days)
+* `java.nio.ByteBuffer` from Base64-encoded text (including URL-safe)
 
 ### Custom data types
 
