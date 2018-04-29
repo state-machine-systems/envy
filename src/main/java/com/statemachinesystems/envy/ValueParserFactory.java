@@ -1,6 +1,7 @@
 package com.statemachinesystems.envy;
 
 import com.statemachinesystems.envy.parsers.ArrayValueParser;
+import com.statemachinesystems.envy.parsers.ByteArrayValueParser;
 import com.statemachinesystems.envy.parsers.EnumValueParser;
 import com.statemachinesystems.envy.parsers.ReflectionValueParser;
 
@@ -52,6 +53,8 @@ public class ValueParserFactory {
             return parser;
         } else if (propertyClass.isEnum()) {
             return enumValueParser(propertyClass);
+        } else if (propertyClass.isArray() && propertyClass.getComponentType() == byte.class || propertyClass.getComponentType() == Byte.class) {
+            return new ByteArrayValueParser();
         } else if (propertyClass.isArray()) {
             if (! allowArrays) {
                 throw new UnsupportedTypeException("Nested arrays are not supported");
