@@ -18,6 +18,14 @@ public class NestingTest extends FeatureTest {
         int bar();
     }
 
+    public interface Inner2 {
+        @Default("1")
+        int bar();
+
+        @Default("2")
+        int baz();
+    }
+
     public interface Outer2 {
         interface Inner2 {
             Inner1 baz();
@@ -76,6 +84,11 @@ public class NestingTest extends FeatureTest {
     public interface Outer8 {
         @Default("xxx")
         Inner1 foo();
+    }
+
+    public interface Outer9 {
+        @Nullable
+        Inner2 foo();
     }
 
     @Test
@@ -153,4 +166,26 @@ public class NestingTest extends FeatureTest {
         envy(configSource).proxy(Outer8.class);
     }
 
+    @Test
+    public void nullableNestedConfigWithDefaultsAndAllValuesProvidedIsPopulated() {
+        ConfigSource configSource = configSource().add("foo.bar", "3").add("foo.baz", "4");
+        Outer9 config = envy(configSource).proxy(Outer9.class);
+        assertThat(config.foo().bar(), equalTo(3));
+        assertThat(config.foo().baz(), equalTo(4));
+    }
+
+    @Test
+    public void nullableNestedConfigWithDefaultsAndNoValuesProvidedIsPopulated() {
+        Outer9 config = envy().proxy(Outer9.class);
+        assertThat(config.foo().bar(), equalTo(1));
+        assertThat(config.foo().baz(), equalTo(2));
+    }
+
+    @Test
+    public void nullableNestedConfigWithDefaultsAndSomeValuesProvidedIsPopulated() {
+        ConfigSource configSource = configSource().add("foo.bar", "3");
+        Outer9 config = envy(configSource).proxy(Outer9.class);
+        assertThat(config.foo().bar(), equalTo(3));
+        assertThat(config.foo().baz(), equalTo(2));
+    }
 }
