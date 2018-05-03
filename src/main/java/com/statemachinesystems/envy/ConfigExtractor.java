@@ -5,10 +5,7 @@ import com.statemachinesystems.envy.values.ConfigValue;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import static com.statemachinesystems.envy.Assertions.*;
 
@@ -38,7 +35,8 @@ public class ConfigExtractor {
                 && method.getAnnotation(Optional.class) == null;
 
         return (method.getReturnType().isPrimitive() || notAnnotated)
-                && ! OptionalWrapper.isWrapperType(method.getReturnType());
+                && ! OptionalWrapper.isWrapperType(method.getReturnType())
+                && ! KotlinDefaultMethodInvoker.hasDefaultImplementation(method);
     }
 
     private static Collection<Method> getMethods(Class<?> configClass) {
@@ -46,15 +44,23 @@ public class ConfigExtractor {
     }
 
     private static Map<String, Method> getMethodsByName(Class<?> configClass) {
-        Map<String, Method> methodsByName = new TreeMap<String, Method>();
+        Map<String, Method> methodsByName = new TreeMap<>();
+
         for (Class<?> superInterface : configClass.getInterfaces()) {
-            methodsByName.putAll(getMethodsByName(superInterface));
+            Map<String, Method> superMethodsByName = getMethodsByName(superInterface);
+            for (String superMethodName : superMethodsByName.keySet()) {
+                if (! methodsByName.containsKey(superMethodName)) {
+                    methodsByName.put(superMethodName, superMethodsByName.get(superMethodName));
+                }
+            }
         }
+
         for (Method method : configClass.getDeclaredMethods()) {
             if (!Modifier.isStatic(method.getModifiers())) {
                 methodsByName.put(method.getName(), method);
             }
         }
+
         return methodsByName;
     }
 
@@ -121,6 +127,7 @@ public class ConfigExtractor {
         if (wrapper != null) {
             ConfigValue value = extractValue(configClass, wrapper.getPropertyClass(), method, parameter);
             return new ConfigValue(wrapper.wrap(value.getValue()), value.getStatus());
+            //return value instanceof KotlinDefaultMethodInvoker ? value : wrapper.wrap(value);
         }
 
         ValueParser<?> valueParser = valueParserFactory.getValueParser(propertyClass);
@@ -130,6 +137,7 @@ public class ConfigExtractor {
             String rawStringValue = (String) rawValue.getValue();
             Object parsedValue = parseValue(valueParser, rawStringValue, propertyClass);
             return new ConfigValue(parsedValue, rawValue.getStatus());
+            //return parsedValue != null ? parsedValue : KotlinDefaultMethodInvoker.invokerOrNull(method);
         } else if (propertyClass.isInterface()) {
             return extractNestedValue(method, parameter, propertyClass);
         } else {
@@ -177,13 +185,16 @@ public class ConfigExtractor {
             throw new IllegalArgumentException("Default values are not applicable to nested configuration");
         }
         try {
-            Object proxy = ProxyInvocationHandler.proxy(propertyClass, extractConfigMap(propertyClass, parameter));
+            // TODO if !configMap.isFullyConfigured() check for default method first
+            ConfigMap configMap = extractConfigMap(propertyClass, parameter);
+            Object proxy = ProxyInvocationHandler.proxy(propertyClass, configMap);
             return new ConfigValue(proxy, ConfigValue.Status.CONFIGURED);
         } catch (MissingParameterValueException missingParameterValue) {
             if (isMandatory(method)) {
                 throw missingParameterValue;
             } else {
                 return new ConfigValue(null, ConfigValue.Status.MISSING);
+                //return KotlinDefaultMethodInvoker.invokerOrNull(method);
             }
         }
     }

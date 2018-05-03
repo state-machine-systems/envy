@@ -102,7 +102,11 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
                 throw new IllegalStateException("Missing method implementation: " + method);
             }
         }
-
+/*
+        if (value instanceof KotlinDefaultMethodInvoker) {
+            return ((KotlinDefaultMethodInvoker) value).invoke(proxy);
+        }
+ */
         return value.getValue();
     }
 

@@ -40,8 +40,9 @@
         <junit.version>4.11</junit.version>
         <mockito.version>1.9.5</mockito.version>
         <guava.version>19.0</guava.version>
+        <kotlin.version>1.2.41</kotlin.version>
         <scala.library.version>2.11.8</scala.library.version>
-        <maven.compiler.plugin.version>3.1</maven.compiler.plugin.version>
+        <maven.compiler.plugin.version>3.5.1</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>2.17</maven.surefire.plugin.version>
         <maven.release.plugin.version>2.5.1</maven.release.plugin.version>
         <maven.source.plugin.version>2.4</maven.source.plugin.version>
@@ -79,29 +80,76 @@
             <version>${scala.library.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>process-test-sources</phase>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                        <configuration>
+                        <sourceDirs>
+                            <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
+                        </sourceDirs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.plugin.version}</version>
                 <executions>
-                    <execution>
-                        <id>default-compile</id>
-                        <configuration>
+                        <!-- Replacing default-compile as it is treated specially by maven -->
+                        <execution>
+                            <id>default-compile</id>
+                            <phase>none</phase>
+                            <configuration>
+                                <source>${java.source.version}</source>
+                                <target>${java.target.version}</target>
+                            </configuration>
+                        </execution>
+                        <!-- Replacing default-testCompile as it is treated specially by maven -->
+                        <execution>
+                            <id>default-testCompile</id>
+                            <phase>none</phase>
+                            <configuration>
+                                <source>${java.source.version}</source>
+                                <target>${java.target.version}</target>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>java-compile</id>
+                            <phase>compile</phase>
+                            <goals> <goal>compile</goal> </goals>
+                            <configuration>
+                                <source>${java.source.version}</source>
+                                <target>${java.target.version}</target>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>java-test-compile</id>
+                            <phase>test-compile</phase>
+                            <goals> <goal>testCompile</goal> </goals>
+                            <configuration>
                             <source>${java.source.version}</source>
                             <target>${java.target.version}</target>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>default-testCompile</id>
-                        <configuration>
-                            <source>${java.source.version}</source>
-                            <target>${java.target.version}</target>
-                        </configuration>
-                    </execution>
+                            </configuration>
+                        </execution>
                 </executions>
             </plugin>
             <plugin>
