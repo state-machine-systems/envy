@@ -1,11 +1,13 @@
 package com.statemachinesystems.envy;
 
+import com.statemachinesystems.envy.values.ConfigMap;
+import com.statemachinesystems.envy.values.ConfigValue;
+
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Map;
 
 import static com.statemachinesystems.envy.Assertions.assertInterface;
 
@@ -24,7 +26,7 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
      * @param <T>          the type of the configuration interface
      * @return             a configuration object that implements the interface
      */
-    public static <T> T proxy(Class<T> configClass, Map<String, Object> values) {
+    public static <T> T proxy(Class<T> configClass, ConfigMap values) {
         assertInterface(configClass);
 
         InvocationHandler invocationHandler = new ProxyInvocationHandler(configClass, values);
@@ -71,7 +73,7 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
     private static final Method HASH_CODE_METHOD = getObjectMethod("hashCode");
 
     private final Class<?> configClass;
-    private final Map<String, Object> values;
+    private final ConfigMap values;
 
     /**
      * Creates a {@link com.statemachinesystems.envy.ProxyInvocationHandler} instance using the given interface
@@ -80,14 +82,14 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
      * @param configClass  the configuration interface to be proxied
      * @param values       map of configuration values indexed by method name
      */
-    public ProxyInvocationHandler(Class<?> configClass, Map<String, Object> values) {
+    private ProxyInvocationHandler(Class<?> configClass, ConfigMap values) {
         this.configClass = configClass;
         this.values = values;
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Object value = values.get(method.getName());
+    public Object invoke(Object proxy, Method method, Object[] args) {
+        ConfigValue value = values.getValue(method.getName());
 
         if (value == null) {
             if (TO_STRING_METHOD.equals(method)) {
@@ -96,10 +98,12 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
                 return proxyEquals(args[0]);
             } else if (HASH_CODE_METHOD.equals(method)) {
                 return proxyHashCode();
+            } else {
+                throw new IllegalStateException("Missing method implementation: " + method);
             }
         }
 
-        return value;
+        return value.getValue();
     }
 
     @Override
@@ -108,7 +112,7 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
         buf.append('{');
 
         boolean first = true;
-        for (String methodName : values.keySet()) {
+        for (String methodName : values.getMethodNames()) {
             if (first) {
                 first = false;
             } else {
@@ -116,7 +120,7 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
             }
             buf.append(methodName)
                     .append('=')
-                    .append(formatValue(values.get(methodName)));
+                    .append(formatValue(values.getValue(methodName).getValue()));
         }
 
         buf.append('}');
