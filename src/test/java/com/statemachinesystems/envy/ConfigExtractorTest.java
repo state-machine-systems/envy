@@ -200,6 +200,6 @@ public class ConfigExtractorTest {
     private Object getValue(String methodName, Status expectedStatus) {
         ConfigValue configValue = configExtractor.extractConfigMap(ExampleConfig.class).getValue(methodName);
         assertEquals(expectedStatus, configValue.getStatus());
-        return configValue.getValue();
+        return configValue.getValue(null);
     }
 }

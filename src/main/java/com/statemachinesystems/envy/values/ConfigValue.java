@@ -1,55 +1,47 @@
 package com.statemachinesystems.envy.values;
 
 import com.statemachinesystems.envy.ConfigSource;
+import com.statemachinesystems.envy.Sensitive;
 
 import java.io.Serializable;
-import java.util.Objects;
+import java.lang.reflect.Method;
 
 /**
- * Wrapper type for configuration values.
+ * Wrapper type for configuration values indicating whether the value was sourced
+ * from configuration, missing or set to a default.
  */
-public class ConfigValue implements Serializable {
+public interface ConfigValue<T> extends Serializable {
 
-    public enum Status {
+    static <T> ConfigValue<T> of(T value, ConfigValue.Status status, Method method) {
+        return method.getAnnotation(Sensitive.class) != null
+            ? new SensitiveValue<>(value, status)
+            : new ResolvedValue<>(value, status);
+    }
+
+    enum Status {
         CONFIGURED,
         MISSING,
         DEFAULTED
     }
 
-    private final Object value;
-    private final Status status;
-
-    public ConfigValue(Object value, Status status) {
-        this.value = value;
-        this.status = status;
-    }
+    /**
+     * Returns the fully extracted and parsed value, or a default.
+     *
+     * @param proxy  the proxy this value belongs to
+     */
+    T getValue(Object proxy);
 
     /**
-     * Returns the fully extracted and parsed value.
+     * Returns the value formatted as a String.
+     *
+     * @param proxy  the proxy this value belongs to
+     * @return  the value formatted as a String
      */
-    public Object getValue() {
-        return value;
-    }
+    String format(Object proxy);
 
     /**
      * Indicates whether the value was found in the underlying {@link ConfigSource},
      * missing, or replaced by a default value.
      */
-    public Status getStatus() {
-        return status;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ConfigValue that = (ConfigValue) o;
-        return Objects.equals(value, that.value) &&
-                status == that.status;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(value, status);
-    }
+    Status getStatus();
 }

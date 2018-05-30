@@ -48,26 +48,6 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
         }
     }
 
-    private static String formatValue(Object value) {
-        return value != null && value.getClass().isArray()
-                ? formatArray(value)
-                : String.valueOf(value);
-    }
-
-    private static String formatArray(Object array) {
-        StringBuilder buf = new StringBuilder();
-        buf.append('[');
-        int length = Array.getLength(array);
-        for (int i = 0; i < length; i++) {
-            if (i > 0) {
-                buf.append(", ");
-            }
-            buf.append(Array.get(array, i));
-        }
-        buf.append(']');
-        return buf.toString();
-    }
-
     private static final Method TO_STRING_METHOD = getObjectMethod("toString");
     private static final Method EQUALS_METHOD = getObjectMethod("equals", Object.class);
     private static final Method HASH_CODE_METHOD = getObjectMethod("hashCode");
@@ -89,7 +69,7 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
-        ConfigValue value = values.getValue(method.getName());
+        ConfigValue<?> value = values.getValue(method.getName());
 
         if (value == null) {
             if (TO_STRING_METHOD.equals(method)) {
@@ -103,7 +83,7 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
             }
         }
 
-        return value.getValue();
+        return value.getValue(this);
     }
 
     @Override
@@ -120,7 +100,7 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
             }
             buf.append(methodName)
                     .append('=')
-                    .append(formatValue(values.getValue(methodName).getValue()));
+                    .append(values.getValue(methodName).format(this));
         }
 
         buf.append('}');
