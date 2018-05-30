@@ -89,7 +89,7 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
-        ConfigValue value = values.getValue(method.getName());
+        ConfigValue<?> value = values.getValue(method.getName());
 
         if (value == null) {
             if (TO_STRING_METHOD.equals(method)) {
@@ -103,7 +103,7 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
             }
         }
 
-        return value.getValue();
+        return value.getValue(this);
     }
 
     @Override
@@ -120,7 +120,7 @@ public class ProxyInvocationHandler implements InvocationHandler, Serializable {
             }
             buf.append(methodName)
                     .append('=')
-                    .append(formatValue(values.getValue(methodName).getValue()));
+                    .append(formatValue(values.getValue(methodName).getValue(this)));
         }
 
         buf.append('}');

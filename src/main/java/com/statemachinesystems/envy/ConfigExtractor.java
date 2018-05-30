@@ -2,6 +2,7 @@ package com.statemachinesystems.envy;
 
 import com.statemachinesystems.envy.values.ConfigMap;
 import com.statemachinesystems.envy.values.ConfigValue;
+import com.statemachinesystems.envy.values.StaticConfigValue;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -116,20 +117,20 @@ public class ConfigExtractor {
         return new ConfigMap(Collections.unmodifiableMap(values));
     }
 
-    private ConfigValue extractValue(Class<?> configClass, Class<?> propertyClass, Method method, Parameter parameter) {
-        OptionalWrapper wrapper = OptionalWrapper.wrapperOrNull(propertyClass, method);
+    private <T> ConfigValue<T> extractValue(Class<?> configClass, Class<T> propertyClass, Method method, Parameter parameter) {
+        OptionalWrapper<T> wrapper = OptionalWrapper.wrapperOrNull(propertyClass, method);
         if (wrapper != null) {
-            ConfigValue value = extractValue(configClass, wrapper.getPropertyClass(), method, parameter);
-            return new ConfigValue(wrapper.wrap(value.getValue()), value.getStatus());
+            ConfigValue<?> value = extractValue(configClass, wrapper.getPropertyClass(), method, parameter);
+            return new StaticConfigValue<>(wrapper.wrap(value.getValue(null)), value.getStatus());
         }
 
-        ValueParser<?> valueParser = valueParserFactory.getValueParser(propertyClass);
+        ValueParser<T> valueParser = valueParserFactory.getValueParser(propertyClass);
 
         if (valueParser != null) {
-            ConfigValue rawValue = getRawValue(parameter, configClass, method);
-            String rawStringValue = (String) rawValue.getValue();
-            Object parsedValue = parseValue(valueParser, rawStringValue, propertyClass);
-            return new ConfigValue(parsedValue, rawValue.getStatus());
+            ConfigValue<String> rawValue = getRawValue(parameter, configClass, method);
+            String rawStringValue = rawValue.getValue(null);
+            T parsedValue = parseValue(valueParser, rawStringValue, propertyClass);
+            return new StaticConfigValue<>(parsedValue, rawValue.getStatus());
         } else if (propertyClass.isInterface()) {
             return extractNestedValue(method, parameter, propertyClass);
         } else {
@@ -139,7 +140,7 @@ public class ConfigExtractor {
         }
     }
 
-    private ConfigValue getRawValue(Parameter parameter, Class<?> configClass, Method method) {
+    private ConfigValue<String> getRawValue(Parameter parameter, Class<?> configClass, Method method) {
         String rawValue = configSource.getValue(parameter);
 
         ConfigValue.Status status;
@@ -147,43 +148,39 @@ public class ConfigExtractor {
             status = ConfigValue.Status.CONFIGURED;
         } else {
             rawValue = getDefaultValue(method);
-            if (rawValue != null) {
-                status = ConfigValue.Status.DEFAULTED;
-            } else {
-                status = ConfigValue.Status.MISSING;
-            }
+            status = rawValue != null ? ConfigValue.Status.DEFAULTED : ConfigValue.Status.MISSING;
         }
 
         if (rawValue == null && isMandatory(method)) {
             throw new MissingParameterValueException(configClass, method, parameter);
         }
-        return new ConfigValue(rawValue, status);
+        return new StaticConfigValue<>(rawValue, status);
     }
 
-    private Object parseValue(ValueParser<?> valueParser, String rawValue, Class<?> propertyClass) {
+    private <T> T parseValue(ValueParser<T> valueParser, String rawValue, Class<T> propertyClass) {
         if (rawValue == null) {
             return null;
         }
 
-        Object parsedValue = valueParser.parseValue(rawValue);
+        T parsedValue = valueParser.parseValue(rawValue);
 
         return Conversions.isPrimitiveArray(propertyClass)
                 ? Conversions.boxedArrayToPrimitiveArray(parsedValue)
                 : parsedValue;
     }
 
-    private ConfigValue extractNestedValue(Method method, Parameter parameter, Class<?> propertyClass) {
+    private <T> ConfigValue<T> extractNestedValue(Method method, Parameter parameter, Class<T> propertyClass) {
         if (hasDefaultAnnotation(method)) {
             throw new IllegalArgumentException("Default values are not applicable to nested configuration");
         }
         try {
-            Object proxy = ProxyInvocationHandler.proxy(propertyClass, extractConfigMap(propertyClass, parameter));
-            return new ConfigValue(proxy, ConfigValue.Status.CONFIGURED);
+            T proxy = ProxyInvocationHandler.proxy(propertyClass, extractConfigMap(propertyClass, parameter));
+            return new StaticConfigValue<>(proxy, ConfigValue.Status.CONFIGURED);
         } catch (MissingParameterValueException missingParameterValue) {
             if (isMandatory(method)) {
                 throw missingParameterValue;
             } else {
-                return new ConfigValue(null, ConfigValue.Status.MISSING);
+                return new StaticConfigValue<>(null, StaticConfigValue.Status.MISSING);
             }
         }
     }

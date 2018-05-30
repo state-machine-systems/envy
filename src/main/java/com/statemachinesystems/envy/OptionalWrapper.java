@@ -2,7 +2,7 @@ package com.statemachinesystems.envy;
 
 import java.lang.reflect.*;
 
-public class OptionalWrapper {
+public class OptionalWrapper<T> {
 
     private static class Invoker {
         private final String className;
@@ -17,8 +17,9 @@ public class OptionalWrapper {
             return className.equals(c.getName());
         }
 
-        public Object create(Object object) throws Exception {
-            return Class.forName(className)
+        @SuppressWarnings("unchecked")
+        public <T> T create(Object object) throws Exception {
+            return (T) Class.forName(className)
                     .getMethod(methodName, Object.class)
                     .invoke(null, object);
         }
@@ -30,10 +31,10 @@ public class OptionalWrapper {
             new Invoker("com.google.common.base.Optional", "fromNullable")
     };
 
-    public static OptionalWrapper wrapperOrNull(Class<?> propertyClass, Method method) {
+    public static <T> OptionalWrapper<T> wrapperOrNull(Class<T> propertyClass, Method method) {
         Invoker invoker = invokerOrNull(propertyClass);
         return invoker != null
-                ? new OptionalWrapper(invoker, extractPropertyClass(method.getGenericReturnType()))
+                ? new OptionalWrapper<>(invoker, extractPropertyClass(method.getGenericReturnType()))
                 : null;
     }
 
@@ -81,7 +82,7 @@ public class OptionalWrapper {
         return propertyClass;
     }
 
-    public Object wrap(Object object) {
+    public T wrap(Object object) {
         try {
             return invoker.create(object);
         } catch (Exception e) {

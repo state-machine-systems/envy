@@ -53,20 +53,21 @@ public class Conversions {
         return c.isArray() && c.getComponentType().isPrimitive();
     }
 
-    public static Object boxedArrayToPrimitiveArray(Object src) {
+    @SuppressWarnings("unchecked")
+    public static <T> T boxedArrayToPrimitiveArray(Object src) {
         assertArray(src.getClass());
 
         int length = Array.getLength(src);
         Class<?> componentType = src.getClass().getComponentType();
         if (componentType.isPrimitive()) {
-            return src;
+            return (T) src;
         }
 
         Object dest = Array.newInstance(toPrimitive(componentType), length);
         for (int i = 0; i < length; i++) {
             Array.set(dest, i, Array.get(src, i));
         }
-        return dest;
+        return (T) dest;
     }
 
     private Conversions() {}
