@@ -69,8 +69,7 @@ interface FooConfig {
 }
 ```
 
-If you aren't on Java 8, and don't want to use Guava, you can force Envy to allow null values using
-the `@Nullable` annotation:
+You can force Envy to allow null values using the `@Nullable` annotation:
 
 ```java
 import com.statemachinesystems.envy.Nullable;
@@ -78,6 +77,20 @@ import com.statemachinesystems.envy.Nullable;
 interface FooConfig {
     @Nullable
     URL nullableUrl();
+}
+```
+
+### Sensitive values
+
+By default, Envy provides a `toString()` method that includes all configured values.
+To mask out sensitive values such as passwords, use the `@Sensitive` annotation:
+
+```java
+import com.statemachinesystems.envy.Sensitive;
+
+interface Credentials {
+    String username();
+    @Sensitive String password();
 }
 ```
 
@@ -125,7 +138,7 @@ inheritance and nesting:
 ```java
 interface Credentials {
     String username();
-    String password();
+    @Sensitive String password();
 }
 
 interface ConnectionConfig extends Credentials {
@@ -191,4 +204,4 @@ Then, when instantiating your configuration, pass along an instance of your pars
 MyConfig config = Envy.configure(MyConfig.class, new MyCustomTypeParser());
 ```
 
-&copy; 2014-2017 State Machine Systems Ltd. [Apache Licence, Version 2.0]( http://www.apache.org/licenses/LICENSE-2.0)
+&copy; 2014-2018 State Machine Systems Ltd. [Apache Licence, Version 2.0]( http://www.apache.org/licenses/LICENSE-2.0)

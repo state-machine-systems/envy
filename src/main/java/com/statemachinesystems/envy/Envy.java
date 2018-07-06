@@ -1,9 +1,15 @@
 package com.statemachinesystems.envy;
 
 import com.statemachinesystems.envy.parsers.*;
-import com.statemachinesystems.envy.sources.*;
+import com.statemachinesystems.envy.sources.DelegatingConfigSource;
+import com.statemachinesystems.envy.sources.EnvironmentVariableConfigSource;
+import com.statemachinesystems.envy.sources.SystemPropertyConfigSource;
+import com.statemachinesystems.envy.values.ConfigMap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Top-level fa&ccedil;ade for creating configuration objects.
@@ -119,7 +125,7 @@ public class Envy {
      * @return             a configuration object that implements the interface
      */
     public <T> T proxy(Class<T> configClass) {
-        Map<String, Object> values = configExtractor.extractValuesByMethodName(configClass);
+        ConfigMap values = configExtractor.extractConfigMap(configClass);
         return ProxyInvocationHandler.proxy(configClass, values);
     }
 }

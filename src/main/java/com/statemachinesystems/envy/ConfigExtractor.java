@@ -1,5 +1,10 @@
 package com.statemachinesystems.envy;
 
+import com.statemachinesystems.envy.values.ConfigMap;
+import com.statemachinesystems.envy.values.ConfigValue;
+import com.statemachinesystems.envy.values.ResolvedValue;
+import com.statemachinesystems.envy.values.SensitiveValue;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
@@ -87,18 +92,18 @@ public class ConfigExtractor {
     }
 
     /**
-     * Extracts configuration values indexed by method name, as used by
+     * Extracts a {@link ConfigMap} of configuration values indexed by method name, as used by
      * {@link com.statemachinesystems.envy.ProxyInvocationHandler}.
      *
      * @param configClass  the class of the configuration interface
-     * @return  a populated map of method names to configuration values
+     * @return  a populated {@link ConfigMap} of method names to configuration values
      */
-    public Map<String, Object> extractValuesByMethodName(Class<?> configClass) {
-        return extractValuesByMethodName(configClass, getPrefix(configClass));
+    public ConfigMap extractConfigMap(Class<?> configClass) {
+        return extractConfigMap(configClass, getPrefix(configClass));
     }
 
-    private Map<String, Object> extractValuesByMethodName(Class<?> configClass, Parameter prefix) {
-        Map<String, Object> values = new TreeMap<String, Object>();
+    private ConfigMap extractConfigMap(Class<?> configClass, Parameter prefix) {
+        Map<String, ConfigValue> values = new TreeMap<>();
 
         for (Method method : getMethods(configClass)) {
             assertMethodWithNoParameters(method);
@@ -106,24 +111,27 @@ public class ConfigExtractor {
             assertMethodWithNonVoidReturnType(method);
 
             Parameter parameter = getParameter(method, prefix);
-            Object value = extractValue(configClass, method.getReturnType(), method, parameter);
+            ConfigValue value = extractValue(configClass, method.getReturnType(), method, parameter);
             values.put(method.getName(), value);
         }
 
-        return Collections.unmodifiableMap(values);
+        return new ConfigMap(Collections.unmodifiableMap(values));
     }
 
-    private Object extractValue(Class<?> configClass, Class<?> propertyClass, Method method, Parameter parameter) {
-        OptionalWrapper wrapper = OptionalWrapper.wrapperOrNull(propertyClass, method);
+    private <T> ConfigValue<T> extractValue(Class<?> configClass, Class<T> propertyClass, Method method, Parameter parameter) {
+        OptionalWrapper<T> wrapper = OptionalWrapper.wrapperOrNull(propertyClass, method);
         if (wrapper != null) {
-            return wrapper.wrap(extractValue(configClass, wrapper.getPropertyClass(), method, parameter));
+            ConfigValue<?> value = extractValue(configClass, wrapper.getPropertyClass(), method, parameter);
+            return ConfigValue.of(wrapper.wrap(value.getValue(null)), value.getStatus(), method);
         }
 
-        ValueParser<?> valueParser = valueParserFactory.getValueParser(propertyClass);
+        ValueParser<T> valueParser = valueParserFactory.getValueParser(propertyClass);
 
         if (valueParser != null) {
-            String rawValue = getRawValue(parameter, configClass, method);
-            return parseValue(valueParser, rawValue, propertyClass);
+            ConfigValue<String> rawValue = getRawValue(parameter, configClass, method);
+            String rawStringValue = rawValue.getValue(null);
+            T parsedValue = parseValue(valueParser, rawStringValue, propertyClass);
+            return ConfigValue.of(parsedValue, rawValue.getStatus(), method);
         } else if (propertyClass.isInterface()) {
             return extractNestedValue(method, parameter, propertyClass);
         } else {
@@ -133,41 +141,47 @@ public class ConfigExtractor {
         }
     }
 
-    private String getRawValue(Parameter parameter, Class<?> configClass, Method method) {
-
+    private ConfigValue<String> getRawValue(Parameter parameter, Class<?> configClass, Method method) {
         String rawValue = configSource.getValue(parameter);
-        if (rawValue == null) {
+
+        ConfigValue.Status status;
+        if (rawValue != null) {
+            status = ConfigValue.Status.CONFIGURED;
+        } else {
             rawValue = getDefaultValue(method);
+            status = rawValue != null ? ConfigValue.Status.DEFAULTED : ConfigValue.Status.MISSING;
         }
+
         if (rawValue == null && isMandatory(method)) {
             throw new MissingParameterValueException(configClass, method, parameter);
         }
-        return rawValue;
+        return ConfigValue.of(rawValue, status, method);
     }
 
-    private Object parseValue(ValueParser<?> valueParser, String rawValue, Class<?> propertyClass) {
+    private <T> T parseValue(ValueParser<T> valueParser, String rawValue, Class<T> propertyClass) {
         if (rawValue == null) {
             return null;
         }
 
-        Object parsedValue = valueParser.parseValue(rawValue);
+        T parsedValue = valueParser.parseValue(rawValue);
 
         return Conversions.isPrimitiveArray(propertyClass)
                 ? Conversions.boxedArrayToPrimitiveArray(parsedValue)
                 : parsedValue;
     }
 
-    private Object extractNestedValue(Method method, Parameter parameter, Class<?> propertyClass) {
+    private <T> ConfigValue<T> extractNestedValue(Method method, Parameter parameter, Class<T> propertyClass) {
         if (hasDefaultAnnotation(method)) {
             throw new IllegalArgumentException("Default values are not applicable to nested configuration");
         }
         try {
-            return ProxyInvocationHandler.proxy(propertyClass, extractValuesByMethodName(propertyClass, parameter));
+            T proxy = ProxyInvocationHandler.proxy(propertyClass, extractConfigMap(propertyClass, parameter));
+            return ConfigValue.of(proxy, ConfigValue.Status.CONFIGURED, method);
         } catch (MissingParameterValueException missingParameterValue) {
             if (isMandatory(method)) {
                 throw missingParameterValue;
             } else {
-                return null;
+                return ConfigValue.of(null, ResolvedValue.Status.MISSING, method);
             }
         }
     }

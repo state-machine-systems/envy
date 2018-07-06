@@ -4,10 +4,10 @@ import com.statemachinesystems.envy.common.StubConfigSource;
 import com.statemachinesystems.envy.parsers.IntegerValueParser;
 import com.statemachinesystems.envy.parsers.ObjectAsStringValueParser;
 import com.statemachinesystems.envy.parsers.StringValueParser;
+import com.statemachinesystems.envy.values.ConfigValue;
+import com.statemachinesystems.envy.values.ConfigValue.Status;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -88,84 +88,86 @@ public class ConfigExtractorTest {
     }
 
     @Test
-    public void retrievesStringProperty() throws Throwable {
-        assertEquals("foo", getValue("getAString"));
+    public void retrievesStringProperty() {
+        assertEquals("foo", getValue("getAString", Status.CONFIGURED));
     }
 
     @Test
-    public void retrievesBoxedIntegerProperty() throws Throwable {
-        assertEquals(10, getValue("getABoxedInteger"));
+    public void retrievesBoxedIntegerProperty() {
+        assertEquals(10, getValue("getABoxedInteger", Status.CONFIGURED));
     }
 
     @Test
-    public void retrievesPrimitiveIntegerProperty() throws Throwable {
-        assertEquals(15, getValue("getAPrimitiveInteger"));
+    public void retrievesPrimitiveIntegerProperty() {
+        assertEquals(15, getValue("getAPrimitiveInteger", Status.CONFIGURED));
     }
 
     @Test
-    public void retrievesArrayOfBoxedInteger() throws Throwable {
-        assertArrayEquals(new Integer[]{ 7 }, (Integer[]) getValue("getAnArrayOfBoxedIntegers"));
+    public void retrievesArrayOfBoxedInteger() {
+        Integer[] value = (Integer[]) getValue("getAnArrayOfBoxedIntegers", Status.CONFIGURED);
+        assertArrayEquals(new Integer[]{ 7 }, value);
     }
 
     @Test
-    public void retrievesArrayOfPrimitiveIntegers() throws Throwable {
-        assertArrayEquals(new int[] { 1, 2, 3 }, (int[]) getValue("getAnArrayOfPrimitiveIntegers"));
+    public void retrievesArrayOfPrimitiveIntegers() {
+        int[] value = (int[]) getValue("getAnArrayOfPrimitiveIntegers", Status.CONFIGURED);
+        assertArrayEquals(new int[] { 1, 2, 3 }, value);
     }
 
     @Test
-    public void retrievesDefaultValue() throws Throwable {
-        assertEquals("default value", getValue("defaultedString"));
+    public void retrievesDefaultValue() {
+        assertEquals("default value", getValue("defaultedString", Status.DEFAULTED));
     }
 
     @Test
-    public void retrievesValueWithCustomName() throws Throwable {
-        assertEquals("bar", getValue("stringWithCustomName"));
+    public void retrievesValueWithCustomName() {
+        assertEquals("bar", getValue("stringWithCustomName", Status.CONFIGURED));
     }
 
     @Test
-    public void retrievesNullableValue() throws Throwable {
-        assertEquals(5, getValue("nullable"));
+    public void retrievesNullableValue() {
+        assertEquals(5, getValue("nullable", Status.CONFIGURED));
     }
 
     @Test
-    public void retrievesNullMissingValue() throws Throwable {
-        assertNull(getValue("missing"));
+    public void retrievesNullMissingValue() {
+        assertNull(getValue("missing", Status.MISSING));
     }
 
     @Test
-    public void retrievesOptionalNonNullValue() throws Throwable {
-        assertEquals(6, getValue("optionalNonNull"));
+    public void retrievesOptionalNonNullValue() {
+        assertEquals(6, getValue("optionalNonNull", Status.CONFIGURED));
     }
 
     @Test
-    public void retrievesOptionalNullValue() throws Throwable {
-        assertNull(getValue("optionalNull"));
+    public void retrievesOptionalNullValue() {
+        assertNull(getValue("optionalNull", Status.MISSING));
     }
 
     @Test(expected = MissingParameterValueException.class)
     public void rejectsMissingParameter() {
         ConfigSource emptyConfigSource = new StubConfigSource();
         ConfigExtractor configExtractor = new ConfigExtractor(valueParserFactory, emptyConfigSource);
-        configExtractor.extractValuesByMethodName(ExampleConfig.class);
+        configExtractor.extractConfigMap(ExampleConfig.class);
     }
 
     @Test(expected = UnsupportedTypeException.class)
     public void rejectsUnsupportedType() {
         ValueParserFactory emptyValueParserFactory = new ValueParserFactory();
         ConfigExtractor configExtractor = new ConfigExtractor(emptyValueParserFactory, configSource);
-        configExtractor.extractValuesByMethodName(ExampleConfig.class);
+        configExtractor.extractConfigMap(ExampleConfig.class);
     }
 
     @Test(expected = MissingParameterValueException.class)
     public void rejectsNullableAnnotationWithPrimitiveReturnType() {
-        configExtractor.extractValuesByMethodName(BadConfigCombiningNullableWithPrimitive.class);
+        configExtractor.extractConfigMap(BadConfigCombiningNullableWithPrimitive.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void overriddenObjectMethodsAreRejected() {
         StubConfigSource configSource = new StubConfigSource().add("to.string", "bad");
         ConfigExtractor configExtractor = new ConfigExtractor(valueParserFactory, configSource);
-        configExtractor.extractValuesByMethodName(BadConfigWithOverriddenObjectMethod.class);
+        configExtractor.extractConfigMap(BadConfigWithOverriddenObjectMethod.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -183,20 +185,21 @@ public class ConfigExtractorTest {
             }
         });
         ConfigExtractor configExtractor = new ConfigExtractor(valueParserFactory, configSource);
-        configExtractor.extractValuesByMethodName(BadConfigWithVoidReturnType.class);
+        configExtractor.extractConfigMap(BadConfigWithVoidReturnType.class);
     }
 
     @Test
     public void mapKeysAreOrderedAlphabetically() {
         String previousKey = "";
-        for (Map.Entry<String, ?> entry : configExtractor.extractValuesByMethodName(ExampleConfig.class).entrySet()) {
-            String currentKey = entry.getKey();
-            assertTrue(previousKey.compareTo(currentKey) <= 0);
-            previousKey = currentKey;
+        for (String methodName : configExtractor.extractConfigMap(ExampleConfig.class).getMethodNames()) {
+            assertTrue(previousKey.compareTo(methodName) <= 0);
+            previousKey = methodName;
         }
     }
 
-    private Object getValue(String methodName) {
-        return configExtractor.extractValuesByMethodName(ExampleConfig.class).get(methodName);
+    private Object getValue(String methodName, Status expectedStatus) {
+        ConfigValue configValue = configExtractor.extractConfigMap(ExampleConfig.class).getValue(methodName);
+        assertEquals(expectedStatus, configValue.getStatus());
+        return configValue.getValue(null);
     }
 }

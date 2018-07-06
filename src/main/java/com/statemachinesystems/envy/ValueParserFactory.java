@@ -41,8 +41,9 @@ public class ValueParserFactory {
      * @return               a {@link com.statemachinesystems.envy.ValueParser} for the given class, or null if
      *                       no applicable parser is available
      */
-    public ValueParser<?> getValueParser(Class<?> propertyClass) {
-        return getValueParser(propertyClass, true);
+    @SuppressWarnings("unchecked")
+    public <T> ValueParser<T> getValueParser(Class<T> propertyClass) {
+        return (ValueParser<T>) getValueParser(propertyClass, true);
     }
 
     private ValueParser<?> getValueParser(Class<?> propertyClass, boolean allowArrays) {

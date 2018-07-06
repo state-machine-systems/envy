@@ -1,5 +1,6 @@
 package com.statemachinesystems.envy.features;
 
+import com.statemachinesystems.envy.ConfigSource;
 import com.statemachinesystems.envy.Default;
 import com.statemachinesystems.envy.Nullable;
 import com.statemachinesystems.envy.UnsupportedTypeException;
@@ -59,6 +60,19 @@ public class OptionalWrapperTest extends FeatureTest {
         interface Nested {
             String bar();
         }
+
+        Optional<Nested> foo();
+    }
+
+    interface Java8WithNestedDefaults {
+        interface Nested {
+            @Default("default bar")
+            String bar();
+
+            @Default("default baz")
+            String baz();
+        }
+
         Optional<Nested> foo();
     }
 
@@ -147,13 +161,13 @@ public class OptionalWrapperTest extends FeatureTest {
     @Test
     public void wrapsArray() {
         Java8WithArray java8 = envy(configSource().add("foo", "1,2,3")).proxy(Java8WithArray.class);
-        assertArrayEquals(new Integer[] { 1, 2, 3 }, java8.foo().get());
+        assertArrayEquals(new Integer[]{1, 2, 3}, java8.foo().get());
     }
 
     @Test
     public void wrapsPrimitiveArray() {
         Java8WithPrimitiveArray java8 = envy(configSource().add("foo", "1,2,3")).proxy(Java8WithPrimitiveArray.class);
-        assertArrayEquals(new int[] { 1, 2, 3 }, java8.foo().get());
+        assertArrayEquals(new int[]{1, 2, 3}, java8.foo().get());
 
     }
 
@@ -187,5 +201,28 @@ public class OptionalWrapperTest extends FeatureTest {
     @Test(expected = UnsupportedTypeException.class)
     public void rejectsGenericArray() {
         envy().proxy(Java8WithArrayOfGenericType.class);
+    }
+
+    @Test
+    public void optionalNestedConfigWithDefaultsAndAllValuesProvidedIsPopulated() {
+        ConfigSource configSource = configSource().add("foo.bar", "x").add("foo.baz", "y");
+        Java8WithNestedDefaults config = envy(configSource).proxy(Java8WithNestedDefaults.class);
+        assertThat(config.foo().get().bar(), equalTo("x"));
+        assertThat(config.foo().get().baz(), equalTo("y"));
+    }
+
+    @Test
+    public void optionalNestedConfigWithDefaultsAndNoValuesProvidedIsPopulated() {
+        Java8WithNestedDefaults config = envy().proxy(Java8WithNestedDefaults.class);
+        assertThat(config.foo().get().bar(), equalTo("default bar"));
+        assertThat(config.foo().get().baz(), equalTo("default baz"));
+    }
+
+    @Test
+    public void optionalNestedConfigWithDefaultsAndSomeValuesProvidedIsPopulated() {
+        ConfigSource configSource = configSource().add("foo.bar", "x");
+        Java8WithNestedDefaults config = envy(configSource).proxy(Java8WithNestedDefaults.class);
+        assertThat(config.foo().get().bar(), equalTo("x"));
+        assertThat(config.foo().get().baz(), equalTo("default baz"));
     }
 }
